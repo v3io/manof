@@ -61,6 +61,10 @@ class Target(object):
     def name(self):
         return inflection.underscore(self.__class__.__name__)
 
+    @classmethod
+    def alias(cls):
+        return None
+
     @property
     def dependent_targets(self):
         return self._dependent_targets
