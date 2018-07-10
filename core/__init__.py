@@ -256,7 +256,7 @@ class Manof(object):
                 cls_names.append(self._alias_target_map[target])
                 continue
 
-            raise RuntimeError('Failed to find target in manofest module: {0}'.format(target))
+            self._logger.info('Failed to find target in manofest module. Skipping', target=target)
 
         return cls_names
 
