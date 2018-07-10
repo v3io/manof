@@ -199,7 +199,9 @@ class Manof(object):
         manofest_module = imp.load_source('manofest', manofest_path)
 
         # normalize to cls names
-        excluded_targets = self._normalize_target_names_to_cls_names(manofest_module, excluded_targets)
+        excluded_targets = self._normalize_target_names_to_cls_names(manofest_module,
+                                                                     excluded_targets,
+                                                                     skip_missing=True)
         targets = self._normalize_target_names_to_cls_names(manofest_module, self._args.targets)
 
         # create instances of the targets passed in the args
@@ -232,7 +234,7 @@ class Manof(object):
 
         return target_instances
 
-    def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names):
+    def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names, skip_missing=False):
 
         # load aliases
         self._populate_alias_target_map(manofest_module)
@@ -258,7 +260,10 @@ class Manof(object):
                 cls_names.append(self._alias_target_map[target])
                 continue
 
-            self._logger.info('Failed to find target in manofest module. Skipping', target=target)
+            if skip_missing:
+                self._logger.info('Failed to find target in manofest module. Skipping', target=target)
+            else:
+                raise RuntimeError('Failed to find target in manofest module: {0}'.format(target))
 
         return cls_names
 
