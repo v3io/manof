@@ -191,44 +191,46 @@ class Manof(object):
         return self._target_tree_from_target_list(targets)
 
     def _load_targets_from_manofest(self, manofest_path):
-        targets = []
-        exclude_targets = self._args.exclude.split(',') if 'exclude' in self._args else []
+        target_instances = []
+        excluded_targets = self._args.exclude.split(',') if 'exclude' in self._args else []
 
         # start by loading the manofest module
         self._logger.debug('Loading manofest', manofest_path=manofest_path)
         manofest_module = imp.load_source('manofest', manofest_path)
 
         # normalize to cls names
-        excluded_target_names = self._normalize_target_names_to_cls_names(manofest_module, exclude_targets)
-        target_names = self._normalize_target_names_to_cls_names(manofest_module, self._args.targets)
+        excluded_targets = self._normalize_target_names_to_cls_names(manofest_module, excluded_targets)
+        targets = self._normalize_target_names_to_cls_names(manofest_module, self._args.targets)
 
         # create instances of the targets passed in the args
-        for target_name in target_names:
-            if target_name in excluded_target_names:
-                self._logger.debug('Exclusion requested. Skipping target', target=target_name, exclude=exclude_targets)
+        for target in targets:
+            if target in excluded_targets:
+                self._logger.debug('Exclusion requested. Skipping target',
+                                   target=target,
+                                   excluded_targets=excluded_targets)
                 continue
 
-            target_instance = self._create_target_by_cls_name(manofest_module, target_name)
+            target_instance = self._create_target_by_cls_name(manofest_module, target)
 
             # if the target is a group, iterate over the members and create a target instance for each
             # member of the group
             if isinstance(target_instance, manof.Group):
-                member_cls_names = self._normalize_target_names_to_cls_names(manofest_module, target_instance.members)
-                for member in member_cls_names:
-                    if member in excluded_target_names:
+                members = self._normalize_target_names_to_cls_names(manofest_module, target_instance.members)
+                for member in members:
+                    if member in excluded_targets:
                         self._logger.debug('Exclusion requested. Skipping target',
                                            member=member,
-                                           exclude=exclude_targets)
+                                           excluded_targets=excluded_targets)
                         continue
 
                     # instantiate the member of the group
-                    targets.append(self._create_target_by_cls_name(manofest_module, member))
+                    target_instances.append(self._create_target_by_cls_name(manofest_module, member))
             else:
 
                 # not a group - create the target
-                targets.append(target_instance)
+                target_instances.append(target_instance)
 
-        return targets
+        return target_instances
 
     def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names):
 
@@ -281,9 +283,9 @@ class Manof(object):
         if len(self._alias_target_map):
             return
 
-        for cls_name, cls in inspect.getmembers(manofest_module, is_manof_target_cls):
-            alias = cls.alias() if cls.alias() is not None else cls_name
-            self._alias_target_map[alias] = cls_name
+        for target_cls_name, target_cls in inspect.getmembers(manofest_module, is_manof_target_cls):
+            alias = target_cls.alias() if target_cls.alias() is not None else target_cls_name
+            self._alias_target_map[alias] = target_cls_name
 
     def _target_tree_from_target_list(self, targets):
         """
