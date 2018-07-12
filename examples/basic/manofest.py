@@ -134,6 +134,10 @@ class ImageA(manof.Image):
 
 class ImageB(ImageA):
 
+    @classmethod
+    def alias(cls):
+        return 'imageb'
+
     @property
     def env(self):
         return [
@@ -168,7 +172,10 @@ class VolumeA(manof.NamedVolume):
 
 
 class VolumeB(VolumeA):
-    pass
+    @classmethod
+    def alias(cls):
+        return 'volb'
+
 
 #
 # Image groups

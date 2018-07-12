@@ -1,6 +1,7 @@
 import argparse
 import sys
 import imp
+import inspect
 import inflection
 import simplejson
 import os
@@ -40,6 +41,7 @@ class Manof(object):
 
         manof_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
         self._update_manager = core.update_manager.UpdateManager(self._logger, manof_path)
+        self._alias_target_map = {}
 
     def _ungreedify_targets(self, parsed_args, known_arg_options):
         """
@@ -189,50 +191,106 @@ class Manof(object):
         return self._target_tree_from_target_list(targets)
 
     def _load_targets_from_manofest(self, manofest_path):
-        targets = []
-        exclude_targets = self._args.exclude.split(',') if 'exclude' in self._args else []
+        target_instances = []
+        excluded_targets = self._args.exclude.split(',') if 'exclude' in self._args else []
 
         # start by loading the manofest module
         self._logger.debug('Loading manofest', manofest_path=manofest_path)
         manofest_module = imp.load_source('manofest', manofest_path)
 
+        # normalize to cls names
+        excluded_targets = self._normalize_target_names_to_cls_names(manofest_module,
+                                                                     excluded_targets,
+                                                                     skip_missing=True)
+        targets = self._normalize_target_names_to_cls_names(manofest_module, self._args.targets)
+
         # create instances of the targets passed in the args
-        for target in self._args.targets:
-            if target in exclude_targets:
-                self._logger.debug('Exclusion requested. Skipping target', target=target, exclude=exclude_targets)
+        for target in targets:
+            if target in excluded_targets:
+                self._logger.debug('Exclusion requested. Skipping target',
+                                   target=target,
+                                   excluded_targets=excluded_targets)
                 continue
 
-            # user will pass lowercase names, convert it to class name
-            target_instance = self._create_target_by_name(manofest_module,
-                                                          inflection.camelize(target))
+            target_instance = self._create_target_by_cls_name(manofest_module, target)
 
             # if the target is a group, iterate over the members and create a target instance for each
             # member of the group
             if isinstance(target_instance, manof.Group):
-                for member in target_instance.members:
-                    if inflection.underscore(member) in exclude_targets:
+                members = self._normalize_target_names_to_cls_names(manofest_module, target_instance.members)
+                for member in members:
+                    if member in excluded_targets:
                         self._logger.debug('Exclusion requested. Skipping target',
                                            member=member,
-                                           exclude=exclude_targets)
+                                           excluded_targets=excluded_targets)
                         continue
 
                     # instantiate the member of the group
-                    targets.append(self._create_target_by_name(manofest_module,
-                                                               member))
+                    target_instances.append(self._create_target_by_cls_name(manofest_module, member))
             else:
 
                 # not a group - create the target
-                targets.append(target_instance)
+                target_instances.append(target_instance)
 
-        return targets
+        return target_instances
 
-    def _create_target_by_name(self, manofest_module, target_cls_name):
+    def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names, skip_missing=False):
+
+        # load aliases
+        self._populate_alias_target_map(manofest_module)
+
+        cls_names = []
+
+        # target name can be a class name, a direct snake_case of a class name or an alias
+        for target in raw_target_names:
+
+            # skip empty strings
+            if not len(target):
+                continue
+
+            if target in self._alias_target_map.values():
+                cls_names.append(target)
+                continue
+
+            if inflection.camelize(target) in self._alias_target_map.values():
+                cls_names.append(inflection.camelize(target))
+                continue
+
+            if target in self._alias_target_map:
+                cls_names.append(self._alias_target_map[target])
+                continue
+
+            if skip_missing:
+                self._logger.info('Failed to find target in manofest module. Skipping', target=target)
+            else:
+                raise RuntimeError('Failed to find target in manofest module: {0}'.format(target))
+
+        return cls_names
+
+    def _create_target_by_cls_name(self, manofest_module, target_cls_name):
 
         # get the class from the module
         target_cls = getattr(manofest_module, target_cls_name)
 
         # instantiate the target
         return target_cls(self._logger, self._args)
+
+    def _populate_alias_target_map(self, manofest_module):
+        """
+        Build: {alias / cls name => cls_name}
+        """
+        def is_manof_target_cls(member):
+            if inspect.isclass(member) and issubclass(member, manof.Target):
+                return True
+            return False
+
+        # already populated
+        if len(self._alias_target_map):
+            return
+
+        for target_cls_name, target_cls in inspect.getmembers(manofest_module, is_manof_target_cls):
+            alias = target_cls.alias() if target_cls.alias() is not None else target_cls_name
+            self._alias_target_map[alias] = target_cls_name
 
     def _target_tree_from_target_list(self, targets):
         """
