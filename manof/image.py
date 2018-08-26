@@ -84,6 +84,10 @@ class Image(manof.Target):
         # add device if needed
         if self.device is not None:
             command += '--device={0} '.format(self.device)
+            
+        # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
+        if len(self.dns) > 0:
+            command += '--dns {0}'.format(','.join(self.dns))
 
         # add net
         command += '--net {0} '.format(self.net)
@@ -393,6 +397,10 @@ class Image(manof.Target):
     @property
     def no_healthcheck(self):
         return False
+    
+    @property
+    def dns(self):
+        return []
 
     def to_dict(self):
         d = super(Image, self).to_dict()
