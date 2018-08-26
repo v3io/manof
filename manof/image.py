@@ -87,7 +87,7 @@ class Image(manof.Target):
             
         # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
         if len(self.dns) > 0:
-            command += '--dns {0}'.format(','.join(self.dns))
+            command += '--dns {0} '.format(','.join(self.dns))
 
         # add net
         command += '--net {0} '.format(self.net)
