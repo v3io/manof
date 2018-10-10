@@ -413,7 +413,6 @@ class Image(manof.Target):
             if issubclass(type(item), dict):
                 volume = item.keys()[0]
                 if self._classname_is_subclass(volume, manof.Volume):
-
                     # instantiate
                     named_volume = volume(self._logger, self._args)
                     d['volumes'][idx] = {named_volume.volume_name: item.values()[0]}
@@ -453,7 +452,6 @@ class Image(manof.Target):
         for volume in self.volumes:
             host_path, container_path = volume.items()[0]
             if self._classname_is_subclass(host_path, manof.NamedVolume):
-
                 # instantiate
                 named_volume = host_path(self._logger, self._args)
                 yield named_volume.rm(safe=True)
@@ -484,6 +482,6 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def _disconnect_container_from_network(self, container_name, network):
-            self._logger.debug('Disconnecting container from net')
-            yield self._run_command('docker network disconnect -f {0} {1}'.format(network, container_name),
-                                    raise_on_error=False)
+        self._logger.debug('Disconnecting container from net')
+        yield self._run_command('docker network disconnect -f {0} {1}'.format(network, container_name),
+                                raise_on_error=False)
