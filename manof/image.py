@@ -84,7 +84,7 @@ class Image(manof.Target):
         # add device if needed
         if self.device is not None:
             command += '--device={0} '.format(self.device)
-            
+
         # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
         for dns_ip in self.dns:
             command += '--dns {0} '.format(dns_ip)
@@ -179,14 +179,14 @@ class Image(manof.Target):
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             print command
-        
+
         try:
             yield self._run_command(command)
         except Exception as exc:
             self._logger.warn('Failed running container', err=str(exc))
 
             dangling_container_error = re.search(
-                'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).', 
+                'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).',
                 exc.message)
 
             if dangling_container_error is not None and self.force_run_with_disconnection:
@@ -251,8 +251,13 @@ class Image(manof.Target):
     def pull(self):
         self._logger.debug('Pulling')
 
+        if self._args.repository:
+            image_name = "{0}/{1}".format(self._args.repository, self.image_name)
+        else:
+            image_name = self.image_name
+
         # first, pull the image
-        yield self._run_command('docker pull {0}'.format(self.image_name))
+        yield self._run_command('docker pull {0}'.format(image_name))
 
         # for all images that would have pushed and if the user so desires - tag them with
         # the local repository
@@ -260,7 +265,7 @@ class Image(manof.Target):
             local_image_name = '{0}/{1}'.format(self.local_repository, self.name)
 
             self._logger.debug('Tagging with local repository')
-            yield self._run_command('docker tag {0} {1}'.format(self.image_name, local_image_name))
+            yield self._run_command('docker tag {0} {1}'.format(image_name, local_image_name))
 
     @defer.inlineCallbacks
     def lift(self):
@@ -397,7 +402,7 @@ class Image(manof.Target):
     @property
     def no_healthcheck(self):
         return False
-    
+
     @property
     def dns(self):
         return []
