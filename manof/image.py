@@ -413,6 +413,7 @@ class Image(manof.Target):
             if issubclass(type(item), dict):
                 volume = item.keys()[0]
                 if self._classname_is_subclass(volume, manof.Volume):
+
                     # instantiate
                     named_volume = volume(self._logger, self._args)
                     d['volumes'][idx] = {named_volume.volume_name: item.values()[0]}
@@ -452,6 +453,7 @@ class Image(manof.Target):
         for volume in self.volumes:
             host_path, container_path = volume.items()[0]
             if self._classname_is_subclass(host_path, manof.NamedVolume):
+
                 # instantiate
                 named_volume = host_path(self._logger, self._args)
                 yield named_volume.rm(safe=True)
