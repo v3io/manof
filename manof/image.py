@@ -251,19 +251,24 @@ class Image(manof.Target):
     def pull(self):
         self._logger.debug('Pulling', repository=self._args.repository)
 
-        image = "{0}/{1}".format(self._args.repository, self.image_name) if self._args.repository else self.image_name
+        # determine image remote name
+        remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name) \
+            if self._args.repository else self.image_name
 
         # first, pull the image
-        yield self._run_command('docker pull {0}'.format(image))
+        yield self._run_command('docker pull {0}'.format(remote_image_name))
 
         # tag pulled images with its local repository + name
         if self._args.tag_local:
-            self._logger.debug('Tagging with local repository', image_name=self.image_name, skip_push=self.skip_push)
+            self._logger.debug('Tagging with local repository',
+                               image_name=self.image_name,
+                               remote_image_name=remote_image_name)
 
-            yield self._run_command('docker tag {0} {1}'.format(image, self.image_name))
+            yield self._run_command('docker tag {0} {1}'.format(remote_image_name, self.image_name))
 
-            if self.image_name != image:
-                yield self._run_command('docker rmi {0}'.format(image))
+            # Clean repository from image name if provided
+            if self.image_name != remote_image_name:
+                yield self._run_command('docker rmi {0}'.format(remote_image_name))
 
     @defer.inlineCallbacks
     def lift(self):
