@@ -167,6 +167,14 @@ class Image(manof.Target):
         # set name
         command += '--name {0} '.format(self.container_name)
 
+        for cap in self.cap_add:
+            if cap:
+                command += '--cap-add={0} '.format(cap)
+
+        for cap in self.cap_drop:
+            if cap:
+                command += '--cap-drop={0} '.format(cap)
+
         # set tag
         command += self.image_name + ' '
 
@@ -408,6 +416,20 @@ class Image(manof.Target):
 
     @property
     def dns(self):
+        return []
+
+    @property
+    def cap_add(self):
+        if 'cap_add' in self._args and self._args.cap_add:
+            return self._args.cap_add
+
+        return []
+
+    @property
+    def cap_drop(self):
+        if 'cap_drop' in self._args and self._args.cap_drop:
+            return self._args.cap_drop
+
         return []
 
     def to_dict(self):
