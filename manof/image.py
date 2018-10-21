@@ -180,6 +180,10 @@ class Image(manof.Target):
         if self.device_cgroup_rule:
             command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
 
+        # set device read bps
+        if self.device_read_bps:
+            command += '--device-read-bps={0} '.format(self.device_read_bps)
+
         # set tag
         command += self.image_name + ' '
 
@@ -441,6 +445,13 @@ class Image(manof.Target):
     def device_cgroup_rule(self):
         if 'device_cgroup_rule' in self._args and self._args.device_cgroup_rule:
             return self._args.device_cgroup_rule
+
+        return None
+
+    @property
+    def device_read_bps(self):
+        if 'device_read_bps' in self._args and self._args.device_read_bps:
+            return self._args.device_read_bps
 
         return None
 
