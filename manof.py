@@ -95,6 +95,10 @@ def _register_arguments(parser):
                              help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
     run_command.add_argument('--device-read-iops',
                              help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
+    run_command.add_argument('--device-write-bps',
+                             help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
+    run_command.add_argument('--device-write-iops',
+                             help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
     run_command.add_argument('-dv',
                              '--delete-volumes',
                              help='Image: Delete named_volumes that are used by this image',
@@ -138,6 +142,10 @@ def _register_arguments(parser):
                               help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
     lift_command.add_argument('--device-read-iops',
                               help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
+    lift_command.add_argument('--device-write-bps',
+                              help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
+    lift_command.add_argument('--device-write-iops',
+                              help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
     lift_command.add_argument('--cap-add', help='Add capability to the container', action='append')
     lift_command.add_argument('--cap-drop', help='Drop capability from the container', action='append')
 

@@ -184,9 +184,17 @@ class Image(manof.Target):
         if self.device_read_bps:
             command += '--device-read-bps={0} '.format(self.device_read_bps)
 
-        # set device read bps
+        # set device read iops
         if self.device_read_iops:
             command += '--device-read-iops={0} '.format(self.device_read_iops)
+
+        # set device write bps
+        if self.device_write_bps:
+            command += '--device-write-bps={0} '.format(self.device_write_bps)
+
+        # set device write iops
+        if self.device_write_iops:
+            command += '--device-write-iops={0} '.format(self.device_write_iops)
 
         # set tag
         command += self.image_name + ' '
@@ -463,6 +471,20 @@ class Image(manof.Target):
     def device_read_iops(self):
         if 'device_read_iops' in self._args and self._args.device_read_iops:
             return self._args.device_read_iops
+
+        return None
+
+    @property
+    def device_write_bps(self):
+        if 'device_write_bps' in self._args and self._args.device_write_bps:
+            return self._args.device_write_bps
+
+        return None
+
+    @property
+    def device_write_iops(self):
+        if 'device_write_iops' in self._args and self._args.device_write_iops:
+            return self._args.device_write_iops
 
         return None
 
