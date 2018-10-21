@@ -176,6 +176,10 @@ class Image(manof.Target):
             if cap:
                 command += '--cap-drop={0} '.format(cap)
 
+        # set device cgroup rule
+        if self.device_cgroup_rule:
+            command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
+
         # set tag
         command += self.image_name + ' '
 
@@ -432,6 +436,13 @@ class Image(manof.Target):
             return self._args.cap_drop
 
         return []
+
+    @property
+    def device_cgroup_rule(self):
+        if 'device_cgroup_rule' in self._args and self._args.device_cgroup_rule:
+            return self._args.device_cgroup_rule
+
+        return None
 
     def to_dict(self):
         d = super(Image, self).to_dict()

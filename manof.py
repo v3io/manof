@@ -86,9 +86,11 @@ def _register_arguments(parser):
     run_command.add_argument('targets', nargs='+')
     run_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
     run_command.add_argument('--device',
-                             help='Add a host device to the containers (can use multiple times)',
+                             help='Add a host device to the containers (can be used multiple times)',
                              action='append',
                              dest='devices')
+    run_command.add_argument('--device-cgroup-rule',
+                             help='Add a rule to the cgroup allowed devices list')
     run_command.add_argument('-dv',
                              '--delete-volumes',
                              help='Image: Delete named_volumes that are used by this image',
@@ -123,9 +125,11 @@ def _register_arguments(parser):
     lift_command.add_argument('targets', nargs='+')
     lift_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
     lift_command.add_argument('--device',
-                              help='Add a host device to the containers (can use multiple times)',
+                              help='Add a host device to the containers (can be used multiple times)',
                               action='append',
                               dest='devices')
+    lift_command.add_argument('--device-cgroup-rule',
+                              help='Add a rule to the cgroup allowed devices list')
     lift_command.add_argument('--cap-add', help='Add capability to the container', action='append')
     lift_command.add_argument('--cap-drop', help='Drop capability from the container', action='append')
 
