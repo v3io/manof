@@ -90,7 +90,7 @@ def _register_arguments(parser):
                              action='append',
                              dest='devices')
     run_command.add_argument('--device-cgroup-rule',
-                             help='Add a rule to the cgroup allowed devices list')
+                             help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
     run_command.add_argument('--device-read-bps',
                              help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
     run_command.add_argument('--device-read-iops',
@@ -137,7 +137,7 @@ def _register_arguments(parser):
                               action='append',
                               dest='devices')
     lift_command.add_argument('--device-cgroup-rule',
-                              help='Add a rule to the cgroup allowed devices list')
+                              help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
     lift_command.add_argument('--device-read-bps',
                               help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
     lift_command.add_argument('--device-read-iops',
