@@ -85,7 +85,10 @@ def _register_arguments(parser):
     run_command = subparsers.add_parser('run', help='Run target containers')
     run_command.add_argument('targets', nargs='+')
     run_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
-    run_command.add_argument('--device', help='Add a host device to the containers')
+    run_command.add_argument('--device',
+                             help='Add a host device to the containers (can use multiple times)',
+                             action='append',
+                             dest='devices')
     run_command.add_argument('-dv',
                              '--delete-volumes',
                              help='Image: Delete named_volumes that are used by this image',
@@ -119,7 +122,10 @@ def _register_arguments(parser):
     lift_command = subparsers.add_parser('lift', help='Provision and run targets')
     lift_command.add_argument('targets', nargs='+')
     lift_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
-    lift_command.add_argument('--device', help='Add a host device to the containers')
+    lift_command.add_argument('--device',
+                              help='Add a host device to the containers (can use multiple times)',
+                              action='append',
+                              dest='devices')
     lift_command.add_argument('--cap-add', help='Add capability to the container', action='append')
     lift_command.add_argument('--cap-drop', help='Drop capability from the container', action='append')
 

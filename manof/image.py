@@ -81,9 +81,10 @@ class Image(manof.Target):
         if self.cpuset_cpus:
             command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
 
-        # add device if needed
-        if self.device is not None:
-            command += '--device={0} '.format(self.device)
+        # add devices
+        for device in self.devices:
+            if device:
+                command += '--device={0} '.format(device)
 
         # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
         for dns_ip in self.dns:
@@ -346,11 +347,11 @@ class Image(manof.Target):
         return False
 
     @property
-    def device(self):
-        if 'device' in self._args:
-            return self._args.device
+    def devices(self):
+        if 'devices' in self._args and self._args.devices:
+            return self._args.devices
 
-        return None
+        return []
 
     @property
     def net(self):
