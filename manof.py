@@ -81,31 +81,31 @@ def _register_arguments(parser):
                                         'NamedVolume: Delete existing before creation',
                                    action='store_true')
 
-    run_and_lift_common_parser = argparse.ArgumentParser(add_help=False)
-    run_and_lift_common_parser.add_argument('targets', nargs='+')
-    run_and_lift_common_parser.add_argument('--privileged',
+    run_parent_parser = argparse.ArgumentParser(add_help=False)
+    run_parent_parser.add_argument('targets', nargs='+')
+    run_parent_parser.add_argument('--privileged',
                                             action='store_true',
                                             help='Give extended privileges to these containers')
-    run_and_lift_common_parser.add_argument('--device',
+    run_parent_parser.add_argument('--device',
                                             help='Add a host device to the containers (can be used multiple times)',
                                             action='append',
                                             dest='devices')
-    run_and_lift_common_parser.add_argument('--device-cgroup-rule',
+    run_parent_parser.add_argument('--device-cgroup-rule',
                                             help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
-    run_and_lift_common_parser \
+    run_parent_parser \
         .add_argument('--device-read-bps',
                       help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
-    run_and_lift_common_parser.add_argument('--device-read-iops',
+    run_parent_parser.add_argument('--device-read-iops',
                                             help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
-    run_and_lift_common_parser.add_argument('--device-write-bps',
+    run_parent_parser.add_argument('--device-write-bps',
                                             help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
-    run_and_lift_common_parser.add_argument('--device-write-iops',
+    run_parent_parser.add_argument('--device-write-iops',
                                             help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
-    run_and_lift_common_parser.add_argument('--cap-add', help='Add capability to the container', action='append')
-    run_and_lift_common_parser.add_argument('--cap-drop', help='Drop capability from the container', action='append')
+    run_parent_parser.add_argument('--cap-add', help='Add capability to the container', action='append')
+    run_parent_parser.add_argument('--cap-drop', help='Drop capability from the container', action='append')
 
     # run
-    run_command = subparsers.add_parser('run', help='Run target containers', parents=[run_and_lift_common_parser])
+    run_command = subparsers.add_parser('run', help='Run target containers', parents=[run_parent_parser])
     run_command.add_argument('-dv',
                              '--delete-volumes',
                              help='Image: Delete named_volumes that are used by this image',
@@ -134,7 +134,7 @@ def _register_arguments(parser):
     rm_command.add_argument('targets', nargs='+')
 
     # lift
-    lift_command = subparsers.add_parser('lift', help='Provision and run targets', parents=[run_and_lift_common_parser])
+    lift_command = subparsers.add_parser('lift', help='Provision and run targets', parents=[run_parent_parser])
 
     # serialize
     serialize_command = subparsers.add_parser('serialize', help='Get a JSON representation of the targets')
