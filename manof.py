@@ -81,11 +81,31 @@ def _register_arguments(parser):
                                         'NamedVolume: Delete existing before creation',
                                    action='store_true')
 
+    run_parent_parser = argparse.ArgumentParser(add_help=False)
+    run_parent_parser.add_argument('targets', nargs='+')
+    run_parent_parser.add_argument('--privileged',
+                                            action='store_true',
+                                            help='Give extended privileges to these containers')
+    run_parent_parser.add_argument('--device',
+                                            help='Add a host device to the containers (can be used multiple times)',
+                                            action='append',
+                                            dest='devices')
+    run_parent_parser.add_argument('--device-cgroup-rule',
+                                            help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
+    run_parent_parser \
+        .add_argument('--device-read-bps',
+                      help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
+    run_parent_parser.add_argument('--device-read-iops',
+                                            help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
+    run_parent_parser.add_argument('--device-write-bps',
+                                            help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
+    run_parent_parser.add_argument('--device-write-iops',
+                                            help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
+    run_parent_parser.add_argument('--cap-add', help='Add capability to the container', action='append')
+    run_parent_parser.add_argument('--cap-drop', help='Drop capability from the container', action='append')
+
     # run
-    run_command = subparsers.add_parser('run', help='Run target containers')
-    run_command.add_argument('targets', nargs='+')
-    run_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
-    run_command.add_argument('--device', help='Add a host device to the containers')
+    run_command = subparsers.add_parser('run', help='Run target containers', parents=[run_parent_parser])
     run_command.add_argument('-dv',
                              '--delete-volumes',
                              help='Image: Delete named_volumes that are used by this image',
@@ -93,8 +113,7 @@ def _register_arguments(parser):
     run_command.add_argument('-pco',
                              '--print-command-only',
                              help='Will enforce dry run and print the run command only, no logs at all',
-                             action='store_true'
-    )
+                             action='store_true')
 
     # stop
     stop_command = subparsers.add_parser('stop', help='Stop target containers')
@@ -115,10 +134,7 @@ def _register_arguments(parser):
     rm_command.add_argument('targets', nargs='+')
 
     # lift
-    lift_command = subparsers.add_parser('lift', help='Provision and run targets')
-    lift_command.add_argument('targets', nargs='+')
-    lift_command.add_argument('--privileged', action='store_true', help='Give extended privileges to these containers')
-    lift_command.add_argument('--device', help='Add a host device to the containers')
+    lift_command = subparsers.add_parser('lift', help='Provision and run targets', parents=[run_parent_parser])
 
     # serialize
     serialize_command = subparsers.add_parser('serialize', help='Get a JSON representation of the targets')

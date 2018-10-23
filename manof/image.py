@@ -81,9 +81,10 @@ class Image(manof.Target):
         if self.cpuset_cpus:
             command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
 
-        # add device if needed
-        if self.device is not None:
-            command += '--device={0} '.format(self.device)
+        # add devices
+        for device in self.devices:
+            if device:
+                command += '--device={0} '.format(device)
 
         # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
         for dns_ip in self.dns:
@@ -166,6 +167,34 @@ class Image(manof.Target):
 
         # set name
         command += '--name {0} '.format(self.container_name)
+
+        for cap in self.cap_add:
+            if cap:
+                command += '--cap-add={0} '.format(cap)
+
+        for cap in self.cap_drop:
+            if cap:
+                command += '--cap-drop={0} '.format(cap)
+
+        # set device cgroup rule
+        if self.device_cgroup_rule:
+            command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
+
+        # set device read bps
+        if self.device_read_bps:
+            command += '--device-read-bps={0} '.format(self.device_read_bps)
+
+        # set device read iops
+        if self.device_read_iops:
+            command += '--device-read-iops={0} '.format(self.device_read_iops)
+
+        # set device write bps
+        if self.device_write_bps:
+            command += '--device-write-bps={0} '.format(self.device_write_bps)
+
+        # set device write iops
+        if self.device_write_iops:
+            command += '--device-write-iops={0} '.format(self.device_write_iops)
 
         # set tag
         command += self.image_name + ' '
@@ -338,11 +367,11 @@ class Image(manof.Target):
         return False
 
     @property
-    def device(self):
-        if 'device' in self._args:
-            return self._args.device
+    def devices(self):
+        if 'devices' in self._args and self._args.devices:
+            return self._args.devices
 
-        return None
+        return []
 
     @property
     def net(self):
@@ -409,6 +438,55 @@ class Image(manof.Target):
     @property
     def dns(self):
         return []
+
+    @property
+    def cap_add(self):
+        if 'cap_add' in self._args and self._args.cap_add:
+            return self._args.cap_add
+
+        return []
+
+    @property
+    def cap_drop(self):
+        if 'cap_drop' in self._args and self._args.cap_drop:
+            return self._args.cap_drop
+
+        return []
+
+    @property
+    def device_cgroup_rule(self):
+        if 'device_cgroup_rule' in self._args and self._args.device_cgroup_rule:
+            return self._args.device_cgroup_rule
+
+        return None
+
+    @property
+    def device_read_bps(self):
+        if 'device_read_bps' in self._args and self._args.device_read_bps:
+            return self._args.device_read_bps
+
+        return None
+
+    @property
+    def device_read_iops(self):
+        if 'device_read_iops' in self._args and self._args.device_read_iops:
+            return self._args.device_read_iops
+
+        return None
+
+    @property
+    def device_write_bps(self):
+        if 'device_write_bps' in self._args and self._args.device_write_bps:
+            return self._args.device_write_bps
+
+        return None
+
+    @property
+    def device_write_iops(self):
+        if 'device_write_iops' in self._args and self._args.device_write_iops:
+            return self._args.device_write_iops
+
+        return None
 
     def to_dict(self):
         d = super(Image, self).to_dict()
