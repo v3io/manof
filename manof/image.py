@@ -1,6 +1,5 @@
 import os
 import pipes
-import json
 import inspect
 import re
 
@@ -260,24 +259,28 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def push(self):
-        self._logger.debug('Pushing', repository=self._args.repository)
+        self._logger.debug('Pushing', repository=self._args.repository, skip_push=self.skip_push)
+        if not self.skip_push:
 
-        # determine image remote name, repository is mandatory
-        remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name)
+            # determine image remote name, repository is mandatory
+            remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name)
 
-        # tag and push
-        yield self._run_command([
-            'docker tag {0} {1}'.format(self.image_name, remote_image_name),
-            'docker push {0}'.format(remote_image_name)
-        ])
+            # tag and push
+            yield self._run_command([
+                'docker tag {0} {1}'.format(self.image_name, remote_image_name),
+                'docker push {0}'.format(remote_image_name)
+            ])
 
-        if not self._args.no_cleanup:
-            yield self._run_command('docker rmi {0}'.format(remote_image_name))
+            if not self._args.no_cleanup:
+                yield self._run_command('docker rmi {0}'.format(remote_image_name))
 
-        print(json.dumps({
-            "image_name": self.image_name,
-            "remote_image_name": remote_image_name,
-        }, indent=2))
+            self.pprint_json({
+                "image_name": self.image_name,
+                "remote_image_name": remote_image_name,
+            })
+
+        else:
+            self._logger.debug('Skipping push')
 
     @defer.inlineCallbacks
     def pull(self):
