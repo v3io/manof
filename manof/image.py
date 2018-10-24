@@ -262,17 +262,12 @@ class Image(manof.Target):
     def push(self):
         self._logger.debug('Pushing', repository=self._args.repository)
 
-        if self.context:
-            local_image_name = self.image_name.split(':')[0]
-        else:
-            local_image_name = self.image_name
-
         # determine image remote name, repository is mandatory
         remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name)
 
         # tag and push
         yield self._run_command([
-            'docker tag {0} {1}'.format(local_image_name, remote_image_name),
+            'docker tag {0} {1}'.format(self.image_name, remote_image_name),
             'docker push {0}'.format(remote_image_name)
         ])
 
