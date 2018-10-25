@@ -175,7 +175,7 @@ def _register_arguments(parser):
         cmd_parse.add_argument('-r',
                                '--repository',
                                help='The repository from which images shall be taken from or pushed to',
-                               default='')
+                               default='docker.io')
 
     known_option_strings = parser._option_string_actions.keys()
 

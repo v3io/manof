@@ -263,7 +263,7 @@ class Image(manof.Target):
         if not self.skip_push:
 
             # determine image remote name, repository is mandatory
-            remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name)
+            remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name)
 
             # tag and push
             yield self._run_command([
@@ -275,8 +275,8 @@ class Image(manof.Target):
                 yield self._run_command('docker rmi {0}'.format(remote_image_name))
 
             self.pprint_json({
-                "image_name": self.image_name,
-                "remote_image_name": remote_image_name,
+                'image_name': self.image_name,
+                'remote_image_name': remote_image_name,
             })
 
         else:
