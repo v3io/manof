@@ -287,7 +287,7 @@ class Image(manof.Target):
         self._logger.debug('Pulling', repository=self._args.repository)
 
         # determine image remote name
-        remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name) \
+        remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name) \
             if self._args.repository else self.image_name
 
         # first, pull the image
