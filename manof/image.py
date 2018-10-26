@@ -259,20 +259,26 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def push(self):
+        self._logger.debug('Pushing', repository=self._args.repository, skip_push=self.skip_push)
         if not self.skip_push:
-            local_image_name = '{0}/{1}'.format(self.local_repository, self.name)
 
-            self._logger.debug('Pushing', local_image_name=local_image_name, image_name=self.image_name)
+            # determine image remote name, repository is mandatory
+            remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name)
 
             # tag and push
             yield self._run_command([
-                'docker tag {0} {1}'.format(local_image_name, self.image_name),
-                'docker push {0}'.format(self.image_name)
+                'docker tag {0} {1}'.format(self.image_name, remote_image_name),
+                'docker push {0}'.format(remote_image_name)
             ])
 
-            # unless no cleanup is specified, clean up after push
             if not self._args.no_cleanup:
-                yield self._run_command('docker rmi {0}'.format(self.image_name))
+                yield self._run_command('docker rmi {0}'.format(remote_image_name))
+
+            self.pprint_json({
+                'image_name': self.image_name,
+                'remote_image_name': remote_image_name,
+            })
+
         else:
             self._logger.debug('Skipping push')
 
@@ -281,7 +287,7 @@ class Image(manof.Target):
         self._logger.debug('Pulling', repository=self._args.repository)
 
         # determine image remote name
-        remote_image_name = "{0}/{1}".format(self._args.repository, self.image_name) \
+        remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name) \
             if self._args.repository else self.image_name
 
         # first, pull the image
