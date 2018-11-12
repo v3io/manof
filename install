@@ -5,7 +5,7 @@ import sys
 import argparse
 
 
-def run(command, cwd=None):
+def run(command):
     return os.system('/bin/bash -c "{0}"'.format(command))
 
 
