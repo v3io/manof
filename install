@@ -13,8 +13,23 @@ def register_arguments():
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-o', '--offline-install-path', help='The dir path to install pip packages from.')
+    parser.add_argument('--no-link', action='store_true',
+                        help='Do not remove or create symlink')
 
     return parser.parse_args()
+
+
+def _create_sym_link():
+
+    # symlink to run
+    ln_cmd = 'ln -sF {0}/run /usr/local/bin/manof'.format(os.getcwd())
+
+    # first try without sudo, then with
+    retval = run(ln_cmd)
+    if retval != 0:
+        retval = run('sudo {0}'.format(ln_cmd))
+
+    return retval
 
 
 def main():
@@ -36,17 +51,10 @@ def main():
     if retval != 0:
         sys.exit(retval)
 
-    # symlink to run
-    ln_cmd = 'ln -sF {0}/run /usr/local/bin/manof'.format(os.getcwd())
-
-    # first try without sudo, then with
-    retval = run(ln_cmd)
-
-    if retval != 0:
-        retval = run('sudo {0}'.format(ln_cmd))
-
-    if not retval:
-        print 'Installation complete. Enjoy your manof!'
+    if not args.no_link:
+        retval = _create_sym_link()
+        if not retval:
+            print 'Installation complete. Enjoy your manof!'
 
     sys.exit(retval)
 
