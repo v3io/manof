@@ -260,6 +260,8 @@ class Image(manof.Target):
     @defer.inlineCallbacks
     def push(self):
         if self._args.repository is None:
+
+            # TODO: Remove once self._args.repository's default is set to 'docker.io'
             self._logger.warn('No remote repository was given, setting to \"docker.io\"')
             self._args.repository = 'docker.io'
 
@@ -289,6 +291,8 @@ class Image(manof.Target):
     @defer.inlineCallbacks
     def pull(self):
         if self._args.repository is None:
+
+            # TODO: Remove once self._args.repository's default is set to 'docker.io'
             self._logger.warn('No remote repository was given, setting to \"docker.io\"')
             self._args.repository = 'docker.io'
 

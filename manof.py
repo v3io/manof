@@ -172,6 +172,7 @@ def _register_arguments(parser):
                                help='Exclude targets when running manof cmd (comma-delimited, no spaces)',
                                default='')
 
+        # TODO: Change default to 'docker.io'. Currently default is None for backwards compatibility
         cmd_parse.add_argument('-r',
                                '--repository',
                                help='The repository from which images shall be taken from or pushed to',
