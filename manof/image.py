@@ -259,6 +259,10 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def push(self):
+        if self._args.repository is None:
+            self._logger.warn('No remote repository was given, setting to \"docker.io\"')
+            self._args.repository = 'docker.io'
+
         self._logger.debug('Pushing', repository=self._args.repository, skip_push=self.skip_push)
         if not self.skip_push:
 
@@ -284,6 +288,10 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def pull(self):
+        if self._args.repository is None:
+            self._logger.warn('No remote repository was given, setting to \"docker.io\"')
+            self._args.repository = 'docker.io'
+
         self._logger.debug('Pulling', repository=self._args.repository)
 
         # determine image remote name
