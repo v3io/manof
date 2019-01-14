@@ -24,7 +24,7 @@ def register_arguments():
 def _create_sym_link():
 
     # symlink to run
-    ln_cmd = 'ln -sF {0}/run /usr/local/bin/manof'.format(os.getcwd())
+    ln_cmd = 'ln -sfF {0}/run /usr/local/bin/manof'.format(os.getcwd())
 
     # first try without sudo, then with
     try:
