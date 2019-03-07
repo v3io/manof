@@ -34,7 +34,7 @@ class Image(manof.Target):
 
                 try:
 
-                    # write the docker ingore
+                    # write the docker ignore
                     with open(dockerignore_path, 'wb') as dockerignore_file:
                         dockerignore_file.write('\n'.join(self.dockerignore))
 

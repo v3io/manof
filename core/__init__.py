@@ -45,7 +45,7 @@ class Manof(object):
 
     def _ungreedify_targets(self, parsed_args, known_arg_options):
         """
-        We cleanup unkown argument values from the greedy 'targets' nargs. This is to allow using spaces in the
+        We cleanup unknown argument values from the greedy 'targets' nargs. This is to allow using spaces in the
         dynamic (read: coming from manofest) args, otherwise, This: manof lift --a b target will translate to:
         targets= [b, target]. So, to make this none-greedy, we assume that after every unknown arg without '=' in it,
         there's a value. This prohibits the usage of store_true args in manofest, and is enforced
