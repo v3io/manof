@@ -389,7 +389,7 @@ class Image(manof.Target):
 
     @property
     def pid(self):
-        return ''
+        return None
 
     @property
     def devices(self):
