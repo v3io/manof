@@ -77,6 +77,9 @@ class Image(manof.Target):
         if self.privileged:
             command += '--privileged '
 
+        if self.pid:
+            command += '--pid {0}'.format(self.pid)
+
         # add cpuset_cpus if needed
         if self.cpuset_cpus:
             command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
@@ -383,6 +386,10 @@ class Image(manof.Target):
             return self._args.privileged is True
 
         return False
+
+    @property
+    def pid(self):
+        return None
 
     @property
     def devices(self):
