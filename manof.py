@@ -82,11 +82,11 @@ def _register_arguments(parser):
                                         'NamedVolume: Delete existing before creation',
                                    action='store_true')
     provision_command.add_argument('-tl',
-                                   '--tag-local',
+                                   '--skip-tag-local',
                                    help='If no context is given, provision will perform pull and '
-                                        'tag the image with its local repository (default: True)',
-                                   default=True,
-                                   action='store_true')
+                                        'skip tagging the image with its local repository (default: False)',
+                                   dest='tag_local',
+                                   action='store_false')
 
     run_parent_parser = argparse.ArgumentParser(add_help=False)
     run_parent_parser.add_argument('targets', nargs='+')
