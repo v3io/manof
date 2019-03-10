@@ -264,14 +264,16 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def push(self):
+        if self.skip_push:
+            self._logger.debug('Skipping push',
+                               image_name=self.image_name,
+                               remote_image_name=self.remote_image_name)
+            defer.returnValue(None)
+
         self._logger.debug('Pushing',
                            image_name=self.image_name,
                            remote_image_name=self.remote_image_name,
                            skip_push=self.skip_push)
-
-        if self.skip_push:
-            self._logger.debug('Skipping push')
-            defer.returnValue(None)
 
         # tag and push
         yield self._run_command([
@@ -280,6 +282,9 @@ class Image(manof.Target):
         ])
 
         if not self._args.no_cleanup:
+            self._logger.debug('Cleaning after push',
+                               image_name=self.image_name,
+                               remote_image_name=self.remote_image_name)
             yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
 
         self.pprint_json({
@@ -289,7 +294,9 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def pull(self):
-        self._logger.debug('Pulling', remote_image_name=self.remote_image_name)
+        self._logger.debug('Pulling',
+                           remote_image_name=self.remote_image_name,
+                           tag_local=self._args.tag_local)
 
         # first, pull the image
         yield self._run_command('docker pull {0}'.format(self.remote_image_name))
@@ -525,12 +532,15 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def _tag_local(self):
-        if self._determine_repository() == 'docker.io':
-
+        repository = self._determine_repository()
+        if repository == 'docker.io':
             # docker.io is omitted by default
+            self._logger.debug('Image is already tagged with its local repository',
+                               repository=repository)
             defer.returnValue(None)
 
         self._logger.debug('Tagging image with local repository',
+                           repository=repository,
                            image_name=self.image_name,
                            remote_image_name=self.remote_image_name)
 
@@ -594,9 +604,8 @@ class Image(manof.Target):
 
         # no repository was determined, use docker's default
         if repository is None:
-
             # TODO: Remove once "default_repository" is set to 'docker.io'
-            # self._logger.warn('No remote repository was given, setting to \"docker.io\"')
+            self._logger.debug('No remote repository was given, setting to \"docker.io\"')
             repository = 'docker.io'
 
         return repository
