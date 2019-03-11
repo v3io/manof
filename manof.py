@@ -44,7 +44,8 @@ def _register_arguments(parser):
     # main command subparser, to which we'll add subparsers below
     subparsers = parser.add_subparsers(dest='command',
                                        title='subcommands',
-                                       description='To print additional help on a subcommand, run manof <subcmd> --help')
+                                       description='To print additional help on a subcommand, '
+                                                   'run manof <subcmd> --help')
 
     # global options for manof
     clients.logging.Client.register_arguments(parser)
@@ -80,27 +81,33 @@ def _register_arguments(parser):
                                    help='Image: Always remove intermediate containers. '
                                         'NamedVolume: Delete existing before creation',
                                    action='store_true')
+    provision_command.add_argument('-tl',
+                                   '--skip-tag-local',
+                                   help='If no context is given, provision will perform pull and '
+                                        'skip tagging the image with its local repository (default: False)',
+                                   dest='tag_local',
+                                   action='store_false')
 
     run_parent_parser = argparse.ArgumentParser(add_help=False)
     run_parent_parser.add_argument('targets', nargs='+')
     run_parent_parser.add_argument('--privileged',
-                                            action='store_true',
-                                            help='Give extended privileges to these containers')
+                                   action='store_true',
+                                   help='Give extended privileges to these containers')
     run_parent_parser.add_argument('--device',
-                                            help='Add a host device to the containers (can be used multiple times)',
-                                            action='append',
-                                            dest='devices')
+                                   help='Add a host device to the containers (can be used multiple times)',
+                                   action='append',
+                                   dest='devices')
     run_parent_parser.add_argument('--device-cgroup-rule',
-                                            help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
+                                   help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
     run_parent_parser \
         .add_argument('--device-read-bps',
                       help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')
     run_parent_parser.add_argument('--device-read-iops',
-                                            help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
+                                   help='Limit read rate (IO per second) from a device (e.g. /dev/sda:50)')
     run_parent_parser.add_argument('--device-write-bps',
-                                            help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
+                                   help='Limit write rate (bytes per second) to a device (e.g. /dev/sda:50mb)')
     run_parent_parser.add_argument('--device-write-iops',
-                                            help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
+                                   help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
     run_parent_parser.add_argument('--cap-add', help='Add capability to the container', action='append')
     run_parent_parser.add_argument('--cap-drop', help='Drop capability from the container', action='append')
 

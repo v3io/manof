@@ -12,6 +12,9 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def provision(self):
+        """
+        Build image if context is given, otherwise pull the image
+        """
 
         provision_args = []
         if 'no_cache' in self._args and self._args.no_cache:
@@ -34,7 +37,7 @@ class Image(manof.Target):
 
                 try:
 
-                    # write the docker ingore
+                    # write the docker ignore
                     with open(dockerignore_path, 'wb') as dockerignore_file:
                         dockerignore_file.write('\n'.join(self.dockerignore))
 
@@ -53,7 +56,9 @@ class Image(manof.Target):
                 # just run the command
                 yield self._run_command(command)
         else:
-            yield self._run_command('docker pull {0}'.format(self.image_name))
+
+            # there's nothing to build, just pull
+            yield self.pull()
 
     @defer.inlineCallbacks
     def run(self):
@@ -262,63 +267,46 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def push(self):
-        if self._args.repository is None:
+        if self.skip_push:
+            self._logger.debug('Skipping push',
+                               image_name=self.image_name,
+                               remote_image_name=self.remote_image_name)
+            defer.returnValue(None)
 
-            # TODO: Remove once self._args.repository's default is set to 'docker.io'
-            self._logger.warn('No remote repository was given, setting to \"docker.io\"')
-            self._args.repository = 'docker.io'
+        self._logger.debug('Pushing',
+                           image_name=self.image_name,
+                           remote_image_name=self.remote_image_name,
+                           skip_push=self.skip_push)
 
-        self._logger.debug('Pushing', repository=self._args.repository, skip_push=self.skip_push)
-        if not self.skip_push:
+        # tag and push
+        yield self._run_command([
+            'docker tag {0} {1}'.format(self.image_name, self.remote_image_name),
+            'docker push {0}'.format(self.remote_image_name)
+        ])
 
-            # determine image remote name, repository is mandatory
-            remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name)
+        if not self._args.no_cleanup:
+            self._logger.debug('Cleaning after push',
+                               image_name=self.image_name,
+                               remote_image_name=self.remote_image_name)
+            yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
 
-            # tag and push
-            yield self._run_command([
-                'docker tag {0} {1}'.format(self.image_name, remote_image_name),
-                'docker push {0}'.format(remote_image_name)
-            ])
-
-            if not self._args.no_cleanup:
-                yield self._run_command('docker rmi {0}'.format(remote_image_name))
-
-            self.pprint_json({
-                'image_name': self.image_name,
-                'remote_image_name': remote_image_name,
-            })
-
-        else:
-            self._logger.debug('Skipping push')
+        self.pprint_json({
+            'image_name': self.image_name,
+            'remote_image_name': self.remote_image_name,
+        })
 
     @defer.inlineCallbacks
     def pull(self):
-        if self._args.repository is None:
-
-            # TODO: Remove once self._args.repository's default is set to 'docker.io'
-            self._logger.warn('No remote repository was given, setting to \"docker.io\"')
-            self._args.repository = 'docker.io'
-
-        self._logger.debug('Pulling', repository=self._args.repository)
-
-        # determine image remote name
-        remote_image_name = '{0}/{1}'.format(self._args.repository, self.image_name) \
-            if self._args.repository else self.image_name
+        self._logger.debug('Pulling',
+                           remote_image_name=self.remote_image_name,
+                           tag_local=self._args.tag_local)
 
         # first, pull the image
-        yield self._run_command('docker pull {0}'.format(remote_image_name))
+        yield self._run_command('docker pull {0}'.format(self.remote_image_name))
 
         # tag pulled images with its local repository + name
         if self._args.tag_local:
-            self._logger.debug('Tagging with local repository',
-                               image_name=self.image_name,
-                               remote_image_name=remote_image_name)
-
-            yield self._run_command('docker tag {0} {1}'.format(remote_image_name, self.image_name))
-
-            # Clean repository from image name if provided
-            if self.image_name != remote_image_name:
-                yield self._run_command('docker rmi {0}'.format(remote_image_name))
+            yield self._tag_local()
 
     @defer.inlineCallbacks
     def lift(self):
@@ -327,6 +315,14 @@ class Image(manof.Target):
         # remove containers and ignore errors (since docker returns error if the container doesn't exist)
         yield self.provision()
         yield self.run()
+
+    @property
+    def remote_image_name(self):
+        return os.path.join(self._determine_repository(), self.image_name)
+
+    @property
+    def default_repository(self):
+        return None
 
     @property
     def context(self):
@@ -542,6 +538,26 @@ class Image(manof.Target):
         return env
 
     @defer.inlineCallbacks
+    def _tag_local(self):
+        repository = self._determine_repository()
+        if repository == 'docker.io':
+            # docker.io is omitted by default
+            self._logger.debug('Image is already tagged with its local repository',
+                               repository=repository)
+            defer.returnValue(None)
+
+        self._logger.debug('Tagging image with local repository',
+                           repository=repository,
+                           image_name=self.image_name,
+                           remote_image_name=self.remote_image_name)
+
+        yield self._run_command('docker tag {0} {1}'.format(self.remote_image_name, self.image_name))
+
+        # Clean repository from image name if provided
+        if self.image_name != self.remote_image_name:
+            yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
+
+    @defer.inlineCallbacks
     def _ensure_named_volume_exists(self, volume_name):
 
         # instantiate
@@ -587,6 +603,19 @@ class Image(manof.Target):
             arg_string += '--no-healthcheck '
 
         return arg_string
+
+    def _determine_repository(self):
+
+        # determine repository, prioritize cli repository arg
+        repository = self._args.repository if self._args.repository else self.default_repository
+
+        # no repository was determined, use docker's default
+        if repository is None:
+            # TODO: Remove once "default_repository" is set to 'docker.io'
+            self._logger.debug('No remote repository was given, setting to \"docker.io\"')
+            repository = 'docker.io'
+
+        return repository
 
     @defer.inlineCallbacks
     def _disconnect_container_from_network(self, container_name, network):
