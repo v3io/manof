@@ -78,7 +78,7 @@ class Image(manof.Target):
             command += '--privileged '
 
         if self.pid:
-            command += '--pid {0}'.format(self.pid)
+            command += '--pid {0} '.format(self.pid)
 
         # add cpuset_cpus if needed
         if self.cpuset_cpus:
