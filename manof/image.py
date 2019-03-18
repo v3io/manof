@@ -1,6 +1,8 @@
 import os
+import sys
 import pipes
 import inspect
+import utils
 import re
 
 from twisted.internet import defer
@@ -218,7 +220,18 @@ class Image(manof.Target):
             print command
 
         try:
-            yield self._run_command(command)
+            out, _, _ = yield self._run_command(command)
+
+            if self.pipe_stdout:
+                print >> sys.stdout, out
+
+        except utils.CommandFailedError as exc:
+            if self.pipe_stderr:
+                print >> sys.stderr, exc.err
+                sys.exit(exc.code)
+            else:
+                raise exc
+
         except Exception as exc:
             self._logger.warn('Failed running container', err=str(exc))
 
@@ -349,6 +362,14 @@ class Image(manof.Target):
     @property
     def command(self):
         return None
+
+    @property
+    def pipe_stdout(self):
+        return False
+
+    @property
+    def pipe_stderr(self):
+        return False
 
     @property
     def hostname(self):
