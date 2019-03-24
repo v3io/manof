@@ -2,12 +2,12 @@ import os
 import sys
 import pipes
 import inspect
-import utils
 import re
 
 from twisted.internet import defer
 
 import manof
+import utils
 
 
 class Image(manof.Target):
