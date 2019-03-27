@@ -1,4 +1,5 @@
 import os
+import sys
 import pipes
 import inspect
 import re
@@ -6,6 +7,7 @@ import re
 from twisted.internet import defer
 
 import manof
+import utils
 
 
 class Image(manof.Target):
@@ -218,10 +220,12 @@ class Image(manof.Target):
             print command
 
         try:
-            yield self._run_command(command)
-        except Exception as exc:
-            self._logger.warn('Failed running container', err=str(exc))
+            out, _, _ = yield self._run_command(command)
 
+            if self.pipe_stdout:
+                print >> sys.stdout, out
+
+        except Exception as exc:
             dangling_container_error = re.search(
                 'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).',
                 exc.message)
@@ -231,9 +235,17 @@ class Image(manof.Target):
                 network = dangling_container_error.group('network')
                 yield self._disconnect_container_from_network(container_name, network)
 
-                self._logger.debug('Reruning container', command=command)
+                self._logger.debug('Re-running container', command=command)
                 yield self._run_command(command)
+
             else:
+
+                if self.pipe_stderr:
+                    if isinstance(exc, utils.CommandFailedError):
+                        print >> sys.stderr, exc.err
+                    else:
+                        print >> sys.stderr, str(exc)
+
                 raise exc
 
     @defer.inlineCallbacks
@@ -349,6 +361,14 @@ class Image(manof.Target):
     @property
     def command(self):
         return None
+
+    @property
+    def pipe_stdout(self):
+        return False
+
+    @property
+    def pipe_stderr(self):
+        return False
 
     @property
     def hostname(self):

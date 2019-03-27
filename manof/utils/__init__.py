@@ -22,6 +22,9 @@ class CommandFailedError(Exception):
         :param signal: the signal which killed the process
         :type signal: int
         """
+        self._code = code
+        self._out = out
+        self._err = err
 
         if code is not None:
             message = '\'{0}\' exited with code {1}'.format(command, code)
@@ -38,6 +41,18 @@ class CommandFailedError(Exception):
             message += '\n (stdout: {0})'.format(out)
 
         super(CommandFailedError, self).__init__(message)
+
+    @property
+    def code(self):
+        return self._code
+
+    @property
+    def out(self):
+        return self._out
+
+    @property
+    def err(self):
+        return self._err
 
 
 def git_pull(logger, path):
@@ -201,7 +216,7 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
     """
 
     def _on_operation_callback_error(failure):
-        logger.warn('Exception during operation execution', function=function.__name__, tb=failure.getBriefTraceback())
+        logger.debug('Exception during operation execution', function=function.__name__, tb=failure.getBriefTraceback())
         raise failure
 
     tries = 1
