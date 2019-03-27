@@ -216,7 +216,7 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
     """
 
     def _on_operation_callback_error(failure):
-        logger.warn('Exception during operation execution', function=function.__name__, tb=failure.getBriefTraceback())
+        logger.debug('Exception during operation execution', function=function.__name__, tb=failure.getBriefTraceback())
         raise failure
 
     tries = 1

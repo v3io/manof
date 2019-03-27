@@ -226,8 +226,6 @@ class Image(manof.Target):
                 print >> sys.stdout, out
 
         except Exception as exc:
-            self._logger.warn('Failed running container', err=str(exc))
-
             dangling_container_error = re.search(
                 'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).',
                 exc.message)
