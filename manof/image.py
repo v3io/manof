@@ -225,13 +225,6 @@ class Image(manof.Target):
             if self.pipe_stdout:
                 print >> sys.stdout, out
 
-        except utils.CommandFailedError as exc:
-            if self.pipe_stderr:
-                print >> sys.stderr, exc.err
-                sys.exit(exc.code)
-            else:
-                raise exc
-
         except Exception as exc:
             self._logger.warn('Failed running container', err=str(exc))
 
@@ -244,9 +237,17 @@ class Image(manof.Target):
                 network = dangling_container_error.group('network')
                 yield self._disconnect_container_from_network(container_name, network)
 
-                self._logger.debug('Reruning container', command=command)
+                self._logger.debug('Re-running container', command=command)
                 yield self._run_command(command)
+
             else:
+
+                if self.pipe_stderr:
+                    if isinstance(exc, utils.CommandFailedError):
+                        print >> sys.stderr, exc.err
+                    else:
+                        print >> sys.stderr, str(exc)
+
                 raise exc
 
     @defer.inlineCallbacks
