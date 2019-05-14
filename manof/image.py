@@ -87,9 +87,7 @@ class Image(manof.Target):
         if self.pid:
             command += '--pid {0} '.format(self.pid)
 
-        # add cpuset_cpus if needed
-        if self.cpuset_cpus:
-            command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
+        command = self._add_resource_limit_arguments(command)
 
         # add devices
         for device in self.devices:
@@ -186,25 +184,7 @@ class Image(manof.Target):
             if cap:
                 command += '--cap-drop={0} '.format(cap)
 
-        # set device cgroup rule
-        if self.device_cgroup_rule:
-            command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
-
-        # set device read bps
-        if self.device_read_bps:
-            command += '--device-read-bps={0} '.format(self.device_read_bps)
-
-        # set device read iops
-        if self.device_read_iops:
-            command += '--device-read-iops={0} '.format(self.device_read_iops)
-
-        # set device write bps
-        if self.device_write_bps:
-            command += '--device-write-bps={0} '.format(self.device_write_bps)
-
-        # set device write iops
-        if self.device_write_iops:
-            command += '--device-write-iops={0} '.format(self.device_write_iops)
+        command = self._add_device_arguments(command)
 
         # set tag
         command += self.image_name + ' '
@@ -328,6 +308,73 @@ class Image(manof.Target):
         yield self.provision()
         yield self.run()
 
+    def _add_resource_limit_arguments(self, command):
+        """
+        Those route directly to docker args, see docker docs for more info:
+        https://docs.docker.com/config/containers/resource_constraints/
+        """
+
+        # add memory limit args
+        if self.memory:
+            command += '--memory {0} '.format(self.memory)
+
+        if self.memory_reservation:
+            command += '--memory-reservation {0} '.format(self.memory_reservation)
+
+        if self.kernel_memory:
+            command += '--kernel-memory {0} '.format(self.kernel_memory)
+
+        if self.memory_swap:
+            command += '--memory-swap {0} '.format(self.memory_swap)
+
+        if self.memory_swappiness:
+            command += '--memory-swappiness {0} '.format(self.memory_swappiness)
+
+        if self.oom_kill_disable:
+            command += '--oom-kill-disable '
+
+        # add cpus limit args
+        if self.cpus:
+            command += '--cpus {0} '.format(self.cpus)
+
+        if self.cpu_period:
+            command += '--cpu-period {0} '.format(self.cpu_period)
+
+        if self.cpu_quota:
+            command += '--cpu-quota {0} '.format(self.cpu_quota)
+
+        if self.cpuset_cpus:
+            command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
+
+        if self.cpu_shares:
+            command += '--cpu-shares {0} '.format(self.cpu_shares)
+
+        return command
+
+    def _add_device_arguments(self, command):
+
+        # set device cgroup rule
+        if self.device_cgroup_rule:
+            command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
+
+        # set device read bps
+        if self.device_read_bps:
+            command += '--device-read-bps={0} '.format(self.device_read_bps)
+
+        # set device read iops
+        if self.device_read_iops:
+            command += '--device-read-iops={0} '.format(self.device_read_iops)
+
+        # set device write bps
+        if self.device_write_bps:
+            command += '--device-write-bps={0} '.format(self.device_write_bps)
+
+        # set device write iops
+        if self.device_write_iops:
+            command += '--device-write-iops={0} '.format(self.device_write_iops)
+
+        return command
+
     @property
     def remote_image_name(self):
         return os.path.join(self._determine_repository(), self.image_name)
@@ -387,9 +434,91 @@ class Image(manof.Target):
         return True
 
     @property
-    def cpuset_cpus(self):
+    def memory(self):
+        """
+        hard mem limit
+        :return: string e.g. "256m"
+        """
+        return None
 
-        # may be "0-1,3,4" etc
+    @property
+    def memory_reservation(self):
+        """
+        soft mem limit
+        :return: string e.g. "256m"
+        """
+        return None
+
+    @property
+    def kernel_memory(self):
+        """
+        max kernel mem limit
+        :return: string e.g. "256m"
+        """
+        return None
+
+    @property
+    def memory_swap(self):
+        """
+        amount of memory allowed to swap to disk
+        :return: string e.g. "256m"
+        """
+        return None
+
+    @property
+    def memory_swappiness(self):
+        """
+        mem swappiness, int, percentage [0-100]
+        :return: string/int
+        """
+        return None
+
+    @property
+    def oom_kill_disable(self):
+        """
+        disable default OOM kill behavior for this container
+        :return: bool
+        """
+        return False
+
+    @property
+    def cpus(self):
+        """
+        specify how much of the available CPU resources a container can use
+        :return: string e.g. "1.5"
+        """
+        return None
+
+    @property
+    def cpu_period(self):
+        """
+        specify the CPU CFS scheduler period
+        :return: string e.g. "100000"
+        """
+        return None
+
+    @property
+    def cpu_quota(self):
+        """
+        impose a CPU CFS quota on the container
+        :return: string e.g. "150000"
+        """
+        return None
+
+    @property
+    def cpuset_cpus(self):
+        """
+        Limit the specific CPUs or cores a container can use.
+        :return: string - comma separated list "0-1,3,4" etc
+        """
+        return None
+
+    @property
+    def cpu_shares(self):
+        """
+        cpu share (weight) for the container - default 1024
+        :return: string  - e.g. "2048"
+        """
         return None
 
     @property
