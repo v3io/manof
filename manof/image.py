@@ -76,6 +76,10 @@ class Image(manof.Target):
         if self.detach:
             command += '--detach '
 
+        # make it interactive
+        if self.interactive:
+            command += '--interactive '
+
         # add rm if needed
         if self.rm_on_run:
             command += '--rm '
@@ -432,6 +436,10 @@ class Image(manof.Target):
     @property
     def detach(self):
         return True
+
+    @property
+    def interactive(self):
+        return False
 
     @property
     def memory(self):
