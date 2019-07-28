@@ -80,6 +80,10 @@ class Image(manof.Target):
         if self.interactive:
             command += '--interactive '
 
+        # allocate a pseudo-tty
+        if self.tty:
+            command += '--tty '
+
         # add rm if needed
         if self.rm_on_run:
             command += '--rm '
@@ -439,6 +443,10 @@ class Image(manof.Target):
 
     @property
     def interactive(self):
+        return False
+
+    @property
+    def tty(self):
         return False
 
     @property
