@@ -4,3 +4,4 @@ Twisted==19.2.1
 pytz==2016.7
 colorama==0.3.3
 pygments==2.2.0
+ruamel.yaml==0.16.0
