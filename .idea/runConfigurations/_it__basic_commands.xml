@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="(it) manof" type="tests" factoryName="Twisted Trial">
+  <configuration default="false" name="(it) basic commands" type="tests" factoryName="Twisted Trial">
     <module name="manof" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
@@ -10,7 +10,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="_new_additionalArguments" value="&quot;&quot;" />
-    <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/integration/test_manof.py&quot;" />
+    <option name="_new_target" value="&quot;$PROJECT_DIR$/tests/integration/cases/basic/test_basic_commands.py&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2" />
   </configuration>
