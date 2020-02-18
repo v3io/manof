@@ -186,7 +186,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
     out = out.strip()
     if code:
         if quiet and logger:
-            logger.info('Command failed quietly', command=command, cwd=cwd, code_or_signal=code, err=err, out=out)
+            logger.debug('Command failed quietly', command=command, cwd=cwd, code_or_signal=code, err=err, out=out)
         else:
             if logger:
                 logger.warn('Command failed', command=command, cwd=cwd, code_or_signal=code, err=err, out=out)
