@@ -5,3 +5,4 @@ pytz==2016.7
 colorama==0.3.3
 pygments==2.2.0
 ruamel.yaml==0.16.0
+mock==3.0.5

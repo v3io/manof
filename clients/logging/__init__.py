@@ -216,3 +216,13 @@ class Client(object):
                                  'You can also force always/off.',
                             choices=['on', 'off', 'always'],
                             default='on')
+
+
+class TestingClient(Client):
+    """
+    An override of the logging client with defaults suitable for testing
+    """
+    def __init__(self, name=None, initial_severity=None):
+        super(TestingClient, self).__init__('test_' + name if name else 'test',
+                                            initial_severity or 'debug',
+                                            log_colors='always')
