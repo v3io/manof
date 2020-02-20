@@ -4,11 +4,11 @@ TESTER = ./venv/bin/nosetests
 LINTER = ./venv/bin/flake8
 
 .PHONY: all
-all: install test
+all: venv test
 	@echo Done.
 
 .PHONY: lint
-lint: install
+lint: venv
 	$(LINTER) .
 
 .PHONY: test
@@ -16,13 +16,17 @@ test: test-unit test-integ
 	@echo Finished running Tests
 
 .PHONY: test-unit
-test-unit: install
+test-unit: venv
 	$(TESTER) tests/unit
 
 .PHONY: test-integ
-test-integ: install
+test-integ: venv
 	$(TESTER) tests/integration/cases/
 
 .PHONY: install
-install:
+install: venv
+	@echo Installed
+
+venv:
 	$(SYSTEM_PYTHON) ./install
+	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
