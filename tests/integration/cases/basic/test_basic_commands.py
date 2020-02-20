@@ -14,7 +14,7 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
             'parallel': None,
             'repository': None,
             'tag_local': None,
-            'dry_run': False
+            'dry_run': False,
         }
 
     def test_load_manofest(self):
@@ -31,21 +31,22 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
     def test_pull_images(self):
         self._logger.info('Testing pull images happy flow')
 
-        # remove Test Image from docker for the test
-        self._logger.debug('Removing ubuntu:19.10 for pull test')
-        yield manof.utils.execute('docker rmi -f ubuntu:19.10',
+        # load the integration test manofest
+        manofest = self._load_manofest_targets('PullTestImage')
+        docker_image = manofest.dependent_targets[0].image_name
+
+        # sanity - removing image if exists
+        self._logger.debug('Removing docker image', docker_image=docker_image)
+        yield manof.utils.execute('docker rmi -f {}'.format(docker_image),
                                   cwd=None,
                                   quiet=True,
                                   logger=self._logger)
-
-        # load the integration test manofest
-        self._load_manofest_targets('PullTestImage')
 
         # pull the image using manof
         yield self._manof.pull()
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq ubuntu:19.10',
+        yield manof.utils.execute('docker image history -Hq {}'.format(docker_image),
                                   cwd=None,
                                   quiet=False,
                                   logger=self._logger)

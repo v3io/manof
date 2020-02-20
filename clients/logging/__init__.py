@@ -222,7 +222,7 @@ class TestingClient(Client):
     """
     An override of the logging client with defaults suitable for testing
     """
-    def __init__(self, name=None, initial_severity=None):
-        super(TestingClient, self).__init__('test_' + name if name else 'test',
-                                            initial_severity or 'debug',
+    def __init__(self, name='test', initial_severity='debug'):
+        super(TestingClient, self).__init__(name,
+                                            initial_severity,
                                             log_colors='always')

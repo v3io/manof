@@ -8,13 +8,16 @@ from twisted.trial import unittest
 import core
 import clients.logging
 
-logger = clients.logging.TestingClient('manof_integration').logger
+logger = clients.logging.TestingClient('integration_test').logger
 
 
 class ManofIntegrationTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(ManofIntegrationTestCase, self).__init__(*args, **kwargs)
+
+        # this is done in order to find the artifacts path of the concrete
+        # class's module and not this one's
         self._working_dir = os.path.join(
             os.path.dirname(
                 os.path.realpath(sys.modules[self.__class__.__module__].__file__)
@@ -35,11 +38,11 @@ class ManofIntegrationTestCase(unittest.TestCase):
         for arg_name, arg_val in self.manof_args().iteritems():
             setattr(self._manof._args, arg_name, arg_val)
 
-        yield self.set_up()
+        yield defer.maybeDeferred(self.set_up)
 
     @defer.inlineCallbacks
     def tearDown(self):
-        yield self.tear_down()
+        yield defer.maybeDeferred(self.tear_down)
 
     def set_up(self):
         pass
@@ -55,7 +58,7 @@ class ManofIntegrationTestCase(unittest.TestCase):
         return self.__class__.__name__
 
     def _load_manofest_targets(self, *targets):
-        self._logger.debug('Loading test manofest', manofest_name=self._manofest_file_name, targets=targets)
+        self._logger.debug('Loading test manofest', manofest_file_name=self._manofest_file_name, targets=targets)
 
         self._manof._args.manofest_path = os.path.join(self._working_dir, self._manofest_file_name)
         self._manof._args.targets = targets
