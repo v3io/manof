@@ -1,12 +1,15 @@
-PYTHON_VERSION = python2.7
+SYSTEM_PYTHON = python2.7
+VENV_PYTHON = ./venv/bin/python
+TESTER = ./venv/bin/nosetests
+LINTER = ./venv/bin/flake8
 
 .PHONY: all
 all: install test
 	@echo Done.
 
-#.PHONY: lint
-#lint: install
-#	flake8 .
+.PHONY: lint
+lint: install
+	$(LINTER) .
 
 .PHONY: test
 test: test-unit test-integ
@@ -14,12 +17,12 @@ test: test-unit test-integ
 
 .PHONY: test-unit
 test-unit: install
-	nosetests tests/unit
+	$(TESTER) tests/unit
 
 .PHONY: test-integ
 test-integ: install
-	nosetests tests/integration/cases/
+	$(TESTER) tests/integration/cases/
 
 .PHONY: install
 install:
-	$(PYTHON_VERSION) ./install
+	$(SYSTEM_PYTHON) ./install
