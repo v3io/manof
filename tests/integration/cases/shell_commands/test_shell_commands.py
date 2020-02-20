@@ -39,8 +39,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
                                 logger=self._logger),
             manof.utils.CommandFailedError
         )
-
-
+        self._logger.debug('Last command was supposed to fail')
 
     @defer.inlineCallbacks
     def test_provision_images(self):
