@@ -1,3 +1,4 @@
+import os
 import mock
 
 from twisted.internet import defer
@@ -25,6 +26,8 @@ class ManofUnitTestCase(unittest.TestCase):
         image = self._create_manof_image(
             image_properties={
                 'image_name': 'test_image',
+                'dockerignore': None,
+                'context': None,
             },
             image_args={
                 'repository': None,
@@ -35,7 +38,7 @@ class ManofUnitTestCase(unittest.TestCase):
         self.patch(image, 'pull', mock.Mock())
 
         self._logger.debug('Calling image provisioning')
-        yield image.provision()
+        yield manof.Image.provision(image)
 
         self._logger.debug('Checking pull method has been called')
         image.pull.assert_called_once()
@@ -46,7 +49,9 @@ class ManofUnitTestCase(unittest.TestCase):
         image = self._create_manof_image(
             image_properties={
                 'image_name': 'test_image',
+                'dockerignore': None,
                 'context': 'test_image',
+                'dockerfile': 'test_image/Dockerfile'
             }
         )
         self._logger.debug('Patching image pull and _run_command methods')
@@ -54,7 +59,7 @@ class ManofUnitTestCase(unittest.TestCase):
         self.patch(image, '_run_command', mock.Mock())
 
         self._logger.debug('Calling image provisioning')
-        yield image.provision()
+        yield manof.Image.provision(image)
 
         self._logger.debug('Checking pull method has\'nt been called')
         self.assertFalse(image.pull.called)
@@ -66,12 +71,8 @@ class ManofUnitTestCase(unittest.TestCase):
     def _create_manof_image(self, image_properties, image_args=None):
         self._logger.debug('Creating test image mock')
 
-        class TestImage(manof.Image):
-            pass
-
-        self._logger.debug('Setting mocked image properties', properties=image_properties)
-        for property_name, property_val in image_properties.iteritems():
-            self.patch(TestImage, property_name, property(lambda self: property_val))
+        image = mock.Mock(manof.Image)
+        image._logger = self._logger
 
         self._logger.debug('Setting mocked image args', args=image_args)
         manof_args = mock.MagicMock()
@@ -79,4 +80,12 @@ class ManofUnitTestCase(unittest.TestCase):
             for attr, val in image_args.iteritems():
                 setattr(manof_args, attr, val)
 
-        return TestImage(self._logger, manof_args)
+        image._args = manof_args
+        image._manofest_path = os.path.abspath(image._args.manofest_path)
+        image._manofest_dir = os.path.dirname(image._manofest_path)
+
+        self._logger.debug('Setting mocked image properties', properties=image_properties)
+        for property_name, property_val in image_properties.iteritems():
+            setattr(image, property_name, property_val)
+
+        return image

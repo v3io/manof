@@ -1,20 +1,22 @@
 import os
 import mock
 import sys
+import imp
 
 from twisted.internet import defer
 from twisted.trial import unittest
 
+import manof
 import core
 import clients.logging
 
 logger = clients.logging.TestingClient('integration_test').logger
 
 
-class ManofIntegrationTestCase(unittest.TestCase):
+class IntegrationTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(ManofIntegrationTestCase, self).__init__(*args, **kwargs)
+        super(IntegrationTestCase, self).__init__(*args, **kwargs)
 
         # this is done in order to find the artifacts path of the concrete
         # class's module and not this one's
@@ -24,6 +26,51 @@ class ManofIntegrationTestCase(unittest.TestCase):
             ), 'artifacts'
         )
         self._manofest_file_name = 'manofest.py'
+
+    @defer.inlineCallbacks
+    def setUp(self):
+        self._logger = logger.get_child(self.name)
+        self._logger.info('Setting up integration test')
+
+        yield defer.maybeDeferred(self.set_up)
+
+    @defer.inlineCallbacks
+    def tearDown(self):
+        yield defer.maybeDeferred(self.tear_down)
+
+    def set_up(self):
+        pass
+
+    def tear_down(self):
+        pass
+
+    @property
+    def name(self):
+        return self.__class__.__name__
+
+    @defer.inlineCallbacks
+    def _remove_docker_container(self, docker_container, quiet=True, cwd=None):
+        self._logger.debug('Removing docker container', docker_container=docker_container)
+        yield manof.utils.execute('docker rm -f {}'.format(docker_container),
+                                  cwd=cwd,
+                                  quiet=quiet,
+                                  logger=self._logger)
+
+    @defer.inlineCallbacks
+    def _remove_docker_image(self, docker_image, quiet=True, cwd=None):
+        self._logger.debug('Removing docker image', docker_image=docker_image)
+        yield manof.utils.execute('docker rmi -f {}'.format(docker_image),
+                                  cwd=cwd,
+                                  quiet=quiet,
+                                  logger=self._logger)
+
+    def _get_manof_image(self, image_name):
+        manofest_path = os.path.join(self._working_dir, 'manofest.py')
+        manofest_module = imp.load_source('manofest', manofest_path)
+        return getattr(manofest_module, image_name)(self._logger, mock.MagicMock())
+
+
+class ManofIntegrationTestCase(IntegrationTestCase):
 
     @defer.inlineCallbacks
     def setUp(self):
@@ -40,22 +87,8 @@ class ManofIntegrationTestCase(unittest.TestCase):
 
         yield defer.maybeDeferred(self.set_up)
 
-    @defer.inlineCallbacks
-    def tearDown(self):
-        yield defer.maybeDeferred(self.tear_down)
-
-    def set_up(self):
-        pass
-
-    def tear_down(self):
-        pass
-
     def manof_args(self):
         return {}
-
-    @property
-    def name(self):
-        return self.__class__.__name__
 
     def _load_manofest_targets(self, *targets):
         self._logger.debug('Loading test manofest', manofest_file_name=self._manofest_file_name, targets=targets)
