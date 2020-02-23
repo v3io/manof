@@ -211,7 +211,7 @@ class Image(manof.Target):
             out, _, _ = yield self._run_command(command)
 
             if self.pipe_stdout:
-                print >> sys.stdout, out
+                sys.stdout.write(out)
 
         except Exception as exc:
             dangling_container_error = re.search(
@@ -230,9 +230,9 @@ class Image(manof.Target):
 
                 if self.pipe_stderr:
                     if isinstance(exc, utils.CommandFailedError):
-                        print >> sys.stderr, exc.err
+                        sys.stderr.write(exc.err)
                     else:
-                        print >> sys.stderr, str(exc)
+                        sys.stderr.write(str(exc))
 
                 raise exc
 
