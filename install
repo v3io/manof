@@ -17,6 +17,8 @@ def register_arguments():
     parser.add_argument('-o', '--offline-install-path', help='The dir path to install pip packages from.')
     parser.add_argument('--no-link', action='store_true',
                         help='Do not remove or create symlink')
+    parser.add_argument('--dev', action='store_true',
+                        help='Install dev requirements in addition to common requirements')
 
     return parser.parse_args()
 
@@ -43,6 +45,9 @@ def main():
 
     retval = 0
     try:
+        requirements_file = 'requirements.txt'
+        if args.dev:
+            requirements_file = 'requirements_all.txt'
 
         # create venv, activate it and install requirements to it
         # (from a local dir if it exists)
@@ -50,8 +55,8 @@ def main():
         # issue where it fails in a long-named dir
         run('virtualenv venv && source venv/bin/activate && '
             'python -m pip install {0} incremental && '.format(local_pip_packages) +
-            'python -m pip install {0} -r requirements.txt'.format(
-                local_pip_packages))
+            'python -m pip install {0} -r {1}'.format(
+                local_pip_packages, requirements_file))
 
         if not args.no_link:
             _create_sym_link()

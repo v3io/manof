@@ -143,6 +143,27 @@ def _register_arguments(parser):
     # lift
     lift_command = subparsers.add_parser('lift', help='Provision and run targets', parents=[run_parent_parser])
 
+    # TODO: Make a more pluginable args parser. (Copied lift's args from run and provision)
+    lift_command.add_argument('-dv',
+                              '--delete-volumes',
+                              help='Image: Delete named_volumes that are used by this image',
+                              action='store_true')
+    lift_command.add_argument('-pco',
+                              '--print-command-only',
+                              help='Will enforce dry run and print the run command only, no logs at all',
+                              action='store_true')
+    lift_command.add_argument('-n', '--no-cache', help='Don\'t use cache images on build', action='store_true')
+    lift_command.add_argument('--force-rm',
+                              help='Image: Always remove intermediate containers. '
+                                   'NamedVolume: Delete existing before creation',
+                              action='store_true')
+    lift_command.add_argument('-tl',
+                              '--skip-tag-local',
+                              help='If no context is given, provision will perform pull and '
+                                   'skip tagging the image with its local repository (default: False)',
+                              dest='tag_local',
+                              action='store_false')
+
     # serialize
     serialize_command = subparsers.add_parser('serialize', help='Get a JSON representation of the targets')
     serialize_command.add_argument('targets', nargs='+')

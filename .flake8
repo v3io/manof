@@ -1,0 +1,22 @@
+[flake8]
+
+# no lines over 120 allowed
+max-line-length = 120
+
+# exclude these dirs
+exclude = go/,node_modules/,py/framework/common/__init__.py,etc/docker/vendor/,venv,build
+
+# show us where we got stuff wrong
+show_source = True
+
+# include our stuff
+select = E,F,W,C,I
+
+# ignore the following rules
+ignore =
+
+    # E731 do not assign a lambda expression, use a def
+    E731,
+
+    # F401 unused imports (TODO: unignore and use flake8-putty to allow this for 'models' when it supports flake8 v3)
+    F401
