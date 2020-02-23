@@ -38,7 +38,7 @@ class ObjectEncoder(simplejson.JSONEncoder):
     def default(self, obj):
         try:
             return obj.__log__()
-        except:
+        except Exception:
             return obj.__repr__()
 
 
@@ -50,7 +50,7 @@ class JsonFormatter(logging.Formatter):
 
             # default encoding is utf8
             return simplejson.dumps(params, cls=ObjectEncoder)
-        except:
+        except Exception:
 
             # this is the widest complementary encoding found
             return simplejson.dumps(params, cls=ObjectEncoder, encoding='raw_unicode_escape')

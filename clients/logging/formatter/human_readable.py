@@ -71,7 +71,7 @@ class HumanReadableFormatter(logging.Formatter):
             time_parts = output['when'].split('.')
             time_parts[-1] = time_parts[-1][:-3]
             output['when'] = '.'.join(time_parts)
-        except:
+        except Exception:
             pass
 
         # Disable coloring if requested
