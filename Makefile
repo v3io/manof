@@ -28,5 +28,5 @@ install: venv
 	@echo Installed
 
 venv:
-	$(SYSTEM_PYTHON) ./install
+	$(SYSTEM_PYTHON) ./install --dev
 	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin

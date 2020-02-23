@@ -37,7 +37,7 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
 
         # sanity - removing image if exists
         self._logger.debug('Removing docker image', docker_image=docker_image)
-        yield manof.utils.execute('docker rmi -f {}'.format(docker_image),
+        yield manof.utils.execute('docker rmi -f {0}'.format(docker_image),
                                   cwd=None,
                                   quiet=True,
                                   logger=self._logger)
@@ -46,7 +46,7 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
         yield self._manof.pull()
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {}'.format(docker_image),
+        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
                                   cwd=None,
                                   quiet=False,
                                   logger=self._logger)

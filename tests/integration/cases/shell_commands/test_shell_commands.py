@@ -12,7 +12,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
     def test_run_and_rm(self):
         self._logger.info('Testing run command happy flow')
 
-        image_name = 'run_test_image'
+        image_name = 'test_image'
 
         # sanity - removing containers if exists
         yield self._remove_docker_container(image_name)
@@ -21,7 +21,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('run', [image_name])
 
         # check the image exists
-        docker_log_output, _, _ = yield manof.utils.execute('docker logs {}'.format(image_name),
+        docker_log_output, _, _ = yield manof.utils.execute('docker logs {0}'.format(image_name),
                                                             cwd=None,
                                                             quiet=False,
                                                             logger=self._logger)
@@ -33,7 +33,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
 
         # check the container doesn't exist exists
         yield self.assertFailure(
-            manof.utils.execute('docker logs {}'.format(image_name),
+            manof.utils.execute('docker logs {0}'.format(image_name),
                                 cwd=None,
                                 quiet=False,
                                 logger=self._logger),
@@ -45,8 +45,8 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
     def test_provision_images(self):
         self._logger.info('Testing provision images happy flow')
 
-        image_name = 'provision_test_image'
-        manof_image = self._get_manof_image('ProvisionTestImage')
+        image_name = 'test_image'
+        manof_image = self._get_manof_image('TestImage')
         docker_image = manof_image.image_name
 
         # sanity - removing image if exists
@@ -56,7 +56,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('provision', [image_name])
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {}'.format(docker_image),
+        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
                                   cwd=None,
                                   quiet=False,
                                   logger=self._logger)
@@ -65,8 +65,8 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
     def test_lift_images(self):
         self._logger.info('Testing provision images happy flow')
 
-        image_name = 'lift_test_image'
-        manof_image = self._get_manof_image('LiftTestImage')
+        image_name = 'test_image'
+        manof_image = self._get_manof_image('TestImage')
         docker_image = manof_image.image_name
 
         # sanity - removing container and image if exists
@@ -77,13 +77,13 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('lift', [image_name])
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {}'.format(docker_image),
+        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
                                   cwd=None,
                                   quiet=False,
                                   logger=self._logger)
 
         # check the image exists
-        docker_log_output, _, _ = yield manof.utils.execute('docker logs {}'.format(image_name),
+        docker_log_output, _, _ = yield manof.utils.execute('docker logs {0}'.format(image_name),
                                                             cwd=None,
                                                             quiet=False,
                                                             logger=self._logger)

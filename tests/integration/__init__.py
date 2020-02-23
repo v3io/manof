@@ -51,7 +51,7 @@ class IntegrationTestCase(unittest.TestCase):
     @defer.inlineCallbacks
     def _remove_docker_container(self, docker_container, quiet=True, cwd=None):
         self._logger.debug('Removing docker container', docker_container=docker_container)
-        yield manof.utils.execute('docker rm -f {}'.format(docker_container),
+        yield manof.utils.execute('docker rm -f {0}'.format(docker_container),
                                   cwd=cwd,
                                   quiet=quiet,
                                   logger=self._logger)
@@ -59,7 +59,7 @@ class IntegrationTestCase(unittest.TestCase):
     @defer.inlineCallbacks
     def _remove_docker_image(self, docker_image, quiet=True, cwd=None):
         self._logger.debug('Removing docker image', docker_image=docker_image)
-        yield manof.utils.execute('docker rmi -f {}'.format(docker_image),
+        yield manof.utils.execute('docker rmi -f {0}'.format(docker_image),
                                   cwd=cwd,
                                   quiet=quiet,
                                   logger=self._logger)

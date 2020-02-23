@@ -1,7 +1,7 @@
 import manof
 
 
-class RunTestImage(manof.Image):
+class TestImage(manof.Image):
 
     @property
     def image_name(self):
@@ -9,12 +9,4 @@ class RunTestImage(manof.Image):
 
     @property
     def command(self):
-        return '/bin/sh -c "echo \'{}\'"'.format(self.name)
-
-
-class ProvisionTestImage(RunTestImage):
-    pass
-
-
-class LiftTestImage(RunTestImage):
-    pass
+        return '/bin/sh -c "echo \'{0}\'"'.format(self.name)

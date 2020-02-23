@@ -12,8 +12,8 @@ setuptools.setup(
     license='MIT',
     version='0.1.0',
     description='iguazio\'s twisted extension to flake8',
-    author='Omri Harel',
-    author_email='omrih@iguaz.io',
+    author='Adam Melnick',
+    author_email='adamm@iguazio.com',
     provides=[
         'flake8_igz',
     ],
