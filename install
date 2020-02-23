@@ -63,7 +63,7 @@ def main():
     except subprocess.CalledProcessError as e:
         retval = e.returncode
     else:
-        print 'Installation complete. Enjoy your manof!'
+        print('Installation complete. Enjoy your manof!')
 
     sys.exit(retval)
 

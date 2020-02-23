@@ -205,7 +205,7 @@ class Image(manof.Target):
         command = command.strip()
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
-            print command
+            print(command)
 
         try:
             out, _, _ = yield self._run_command(command)
