@@ -95,7 +95,8 @@ def venv_run(logger, venv_path, command, cwd=None, quiet=False):
 
 def getProcessOutputAndValue(executable, args=(), env={}, path=None,
                              reactor=None):
-    """Spawn a process and returns a Deferred that will be called back with
+    """
+    Spawn a process and returns a Deferred that will be called back with
     its output (from stdout and stderr) and it's exit code as (out, err, code)
     If a signal is raised, the Deferred will errback with the stdout and
     stderr up to that point, along with the signal, as (out, err, signalNum)
@@ -110,7 +111,7 @@ def _callProtocolWithDeferred(protocol, executable, args, env, path, reactor=Non
 
     d = defer.Deferred()
     p = protocol(d)
-    reactor.spawnProcess(p, executable, (executable,)+tuple(args), env, path)
+    reactor.spawnProcess(p, executable, (executable,) + tuple(args), env, path)
     return d
 
 

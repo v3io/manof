@@ -4,7 +4,7 @@ TESTER = ./venv/bin/nosetests
 LINTER = ./venv/bin/flake8
 
 .PHONY: all
-all: venv test
+all: venv lint test
 	@echo Done.
 
 .PHONY: lint

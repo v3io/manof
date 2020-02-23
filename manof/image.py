@@ -51,7 +51,7 @@ class Image(manof.Target):
                     # whatever happens, delete docker ignore silently
                     try:
                         os.remove(dockerignore_path)
-                    except:
+                    except Exception:
                         pass
             else:
 
@@ -687,7 +687,9 @@ class Image(manof.Target):
         return d
 
     def _update_env_override(self):
-        """ Set all the env related args we registered to environment """
+        """
+        Set all the env related args we registered to environment
+        """
         env = self.env
         for idx, envvar in enumerate(env):
             if isinstance(envvar, dict):

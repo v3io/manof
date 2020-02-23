@@ -51,9 +51,9 @@ def _register_arguments(parser):
     clients.logging.Client.register_arguments(parser)
 
     parser.add_argument(
-            '-mp', '--manofest-path',
-            help='Location of manofest.py',
-            default='manofest.py')
+        '-mp', '--manofest-path',
+        help='Location of manofest.py',
+        default='manofest.py')
 
     parser.add_argument(
         '--num-retries',
@@ -64,14 +64,14 @@ def _register_arguments(parser):
 
     # don't actually run any commands
     parser.add_argument(
-            '-dr', '--dry-run',
-            help='Don\'t actually run any commands, just log',
-            action='store_true')
+        '-dr', '--dry-run',
+        help='Don\'t actually run any commands, just log',
+        action='store_true')
 
     parser.add_argument('-p', '--parallel', action='store', help='Set how many commands to run in parallel', type=int)
 
     # update
-    update_command = subparsers.add_parser('update', help='Updates Manof')
+    subparsers.add_parser('update', help='Updates Manof')
 
     # provision
     provision_command = subparsers.add_parser('provision', help='Build or pull target images')
@@ -98,7 +98,7 @@ def _register_arguments(parser):
                                    action='append',
                                    dest='devices')
     run_parent_parser.add_argument('--device-cgroup-rule',
-                                   help='Add a rule to the cgroup allowed devices list (e.g. c\ 42:*\ rmw)')
+                                   help='Add a rule to the cgroup allowed devices list (e.g. c 42:* rmw)')
     run_parent_parser \
         .add_argument('--device-read-bps',
                       help='Limit read rate (bytes per second) from a device (e.g. /dev/sda:50mb)')

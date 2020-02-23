@@ -82,16 +82,16 @@ class TwistedExceptionSink(object):
                         'Unhandled exception in deferred',
                         failure=str(event_info['failure']).replace('\n', '\n\r'),
                         traceback=str(event_info['failure'].getBriefTraceback()).replace('\n', '\n\r'))
-                except:
+                except Exception:
                     pass
 
                 try:
                     if len(event_info['message']) > 0:
                         self.logger_instance.error(
                             str(event_info['message']).replace('\n', '\n\r'))
-                except:
+                except Exception:
                     pass
-        except:
+        except Exception:
             pass
 
 
