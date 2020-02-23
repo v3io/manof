@@ -127,9 +127,9 @@ class Manof(object):
                                                pygments.lexers.JsonLexer(),
                                                pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
 
-            print(colorful_json)
+            print colorful_json
         else:
-            print(formatted_json)
+            print formatted_json
 
     @defer.inlineCallbacks
     def _run_command_on_target_tree(self, command_name):

@@ -99,9 +99,9 @@ class Target(object):
                                                pygments.lexers.JsonLexer(),
                                                pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
 
-            print(colorful_json)
+            print colorful_json
         else:
-            print(formatted_json)
+            print formatted_json
 
     @property
     def env(self):

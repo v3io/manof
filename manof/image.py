@@ -205,13 +205,13 @@ class Image(manof.Target):
         command = command.strip()
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
-            print(command)
+            print command
 
         try:
             out, _, _ = yield self._run_command(command)
 
             if self.pipe_stdout:
-                sys.stdout.write(out)
+                print >> sys.stdout, out
 
         except Exception as exc:
             dangling_container_error = re.search(
@@ -230,9 +230,9 @@ class Image(manof.Target):
 
                 if self.pipe_stderr:
                     if isinstance(exc, utils.CommandFailedError):
-                        sys.stderr.write(exc.err)
+                        print >> sys.stderr, exc.err
                     else:
-                        sys.stderr.write(str(exc))
+                        print >> sys.stderr, str(exc)
 
                 raise exc
 
