@@ -29,6 +29,6 @@ install: venv
 
 venv:
 	$(SYSTEM_PYTHON) -m pip install --upgrade pip
-    $(SYSTEM_PYTHON) -m pip install virtualenv
+	$(SYSTEM_PYTHON) -m pip install virtualenv
 	$(SYSTEM_PYTHON) ./install --dev
 	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
