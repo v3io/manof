@@ -21,6 +21,26 @@ class ManofUnitTestCase(unittest.TestCase):
         return self.__class__.__name__
 
     @defer.inlineCallbacks
+    def test_lift(self):
+        self._logger.info('Testing manof lift')
+        image = self._create_manof_image(
+            image_properties={
+                'image_name': 'test_image',
+                'dockerignore': None,
+                'context': None,
+            },
+            image_args={
+                'repository': None,
+                'tag_local': None,
+            })
+
+        yield manof.Image.lift(image)
+
+        # ensure we tried to provision and run once
+        image.provision.assert_called_once()
+        image.run.assert_called_once()
+
+    @defer.inlineCallbacks
     def test_provision_pull(self):
         self._logger.info('Testing manof provision with pull')
         image = self._create_manof_image(
@@ -33,9 +53,6 @@ class ManofUnitTestCase(unittest.TestCase):
                 'repository': None,
                 'tag_local': None,
             })
-
-        self._logger.debug('Patching image pull method')
-        self.patch(image, 'pull', mock.Mock())
 
         self._logger.debug('Calling image provisioning')
         yield manof.Image.provision(image)
@@ -54,9 +71,6 @@ class ManofUnitTestCase(unittest.TestCase):
                 'dockerfile': 'test_image/Dockerfile'
             }
         )
-        self._logger.debug('Patching image pull and _run_command methods')
-        self.patch(image, 'pull', mock.Mock())
-        self.patch(image, '_run_command', mock.Mock())
 
         self._logger.debug('Calling image provisioning')
         yield manof.Image.provision(image)
