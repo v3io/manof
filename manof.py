@@ -88,25 +88,25 @@ def _register_arguments(parser):
                                             default=None)
 
     # image based commands
-    image_base_parent_command = argparse.ArgumentParser(add_help=False)
-    image_base_parent_command.add_argument('-n', '--no-cache',
-                                           help='Don\'t use cache images on build',
-                                           action='store_true')
-    image_base_parent_command.add_argument('--force-rm',
-                                           help='Image: Always remove intermediate containers. '
-                                                'NamedVolume: Delete existing before creation',
-                                           action='store_true')
+    provision_parent_command = argparse.ArgumentParser(add_help=False)
+    provision_parent_command.add_argument('-n', '--no-cache',
+                                          help='Don\'t use cache images on build',
+                                          action='store_true')
+    provision_parent_command.add_argument('--force-rm',
+                                          help='Image: Always remove intermediate containers. '
+                                               'NamedVolume: Delete existing before creation',
+                                          action='store_true')
+    provision_parent_command.add_argument('-tl',
+                                          '--skip-tag-local',
+                                          help='If no context is given, provision will perform pull and '
+                                               'skip tagging the image with its local repository (default: False)',
+                                          dest='tag_local',
+                                          action='store_false')
 
     # provision
-    provision_command = subparsers.add_parser('provision',
-                                              help='Build or pull target images',
-                                              parents=[base_command_parent_parser, image_base_parent_command])
-    provision_command.add_argument('-tl',
-                                   '--skip-tag-local',
-                                   help='If no context is given, provision will perform pull and '
-                                        'skip tagging the image with its local repository (default: False)',
-                                   dest='tag_local',
-                                   action='store_false')
+    subparsers.add_parser('provision',
+                          help='Build or pull target images',
+                          parents=[base_command_parent_parser, provision_parent_command])
 
     run_parent_parser = argparse.ArgumentParser(add_help=False)
     run_parent_parser.add_argument('--privileged',
@@ -141,7 +141,7 @@ def _register_arguments(parser):
     # run
     subparsers.add_parser('run',
                           help='Run target containers',
-                          parents=[base_command_parent_parser, image_base_parent_command, run_parent_parser])
+                          parents=[base_command_parent_parser, run_parent_parser])
 
     # stop
     stop_command = subparsers.add_parser('stop',
@@ -192,7 +192,7 @@ def _register_arguments(parser):
                           help='Provision and run targets',
                           parents=[
                               base_command_parent_parser,
-                              image_base_parent_command,
+                              provision_parent_command,
                               pull_parent_parser,
                               run_parent_parser,
                           ])
