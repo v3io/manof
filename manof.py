@@ -73,23 +73,42 @@ def _register_arguments(parser):
     # update
     subparsers.add_parser('update', help='Updates Manof')
 
+    # base sub parser
+    base_command_parent_parser = argparse.ArgumentParser(add_help=False)
+    base_command_parent_parser.add_argument('targets', nargs='+')
+    base_command_parent_parser.add_argument('-e',
+                                            '--exclude',
+                                            help='Exclude targets when running manof cmd (comma-delimited, no spaces)',
+                                            default='')
+
+    # TODO: Change default to 'docker.io'. Currently default is None for backwards compatibility
+    base_command_parent_parser.add_argument('-r',
+                                            '--repository',
+                                            help='The repository from which images shall be taken from or pushed to',
+                                            default=None)
+
+    # image based commands
+    provision_parent_command = argparse.ArgumentParser(add_help=False)
+    provision_parent_command.add_argument('-n', '--no-cache',
+                                          help='Don\'t use cache images on build',
+                                          action='store_true')
+    provision_parent_command.add_argument('--force-rm',
+                                          help='Image: Always remove intermediate containers. '
+                                               'NamedVolume: Delete existing before creation',
+                                          action='store_true')
+    provision_parent_command.add_argument('-tl',
+                                          '--skip-tag-local',
+                                          help='If no context is given, provision will perform pull and '
+                                               'skip tagging the image with its local repository (default: False)',
+                                          dest='tag_local',
+                                          action='store_false')
+
     # provision
-    provision_command = subparsers.add_parser('provision', help='Build or pull target images')
-    provision_command.add_argument('targets', nargs='+')
-    provision_command.add_argument('-n', '--no-cache', help='Don\'t use cache images on build', action='store_true')
-    provision_command.add_argument('--force-rm',
-                                   help='Image: Always remove intermediate containers. '
-                                        'NamedVolume: Delete existing before creation',
-                                   action='store_true')
-    provision_command.add_argument('-tl',
-                                   '--skip-tag-local',
-                                   help='If no context is given, provision will perform pull and '
-                                        'skip tagging the image with its local repository (default: False)',
-                                   dest='tag_local',
-                                   action='store_false')
+    subparsers.add_parser('provision',
+                          help='Build or pull target images',
+                          parents=[base_command_parent_parser, provision_parent_command])
 
     run_parent_parser = argparse.ArgumentParser(add_help=False)
-    run_parent_parser.add_argument('targets', nargs='+')
     run_parent_parser.add_argument('--privileged',
                                    action='store_true',
                                    help='Give extended privileges to these containers')
@@ -110,101 +129,72 @@ def _register_arguments(parser):
                                    help='Limit write rate (IO per second) to a device (e.g. /dev/sda:50)')
     run_parent_parser.add_argument('--cap-add', help='Add capability to the container', action='append')
     run_parent_parser.add_argument('--cap-drop', help='Drop capability from the container', action='append')
+    run_parent_parser.add_argument('-dv',
+                                   '--delete-volumes',
+                                   help='Image: Delete named_volumes that are used by this image',
+                                   action='store_true')
+    run_parent_parser.add_argument('-pco',
+                                   '--print-command-only',
+                                   help='Will enforce dry run and print the run command only, no logs at all',
+                                   action='store_true')
 
     # run
-    run_command = subparsers.add_parser('run', help='Run target containers', parents=[run_parent_parser])
-    run_command.add_argument('-dv',
-                             '--delete-volumes',
-                             help='Image: Delete named_volumes that are used by this image',
-                             action='store_true')
-    run_command.add_argument('-pco',
-                             '--print-command-only',
-                             help='Will enforce dry run and print the run command only, no logs at all',
-                             action='store_true')
+    subparsers.add_parser('run',
+                          help='Run target containers',
+                          parents=[base_command_parent_parser, run_parent_parser])
 
     # stop
-    stop_command = subparsers.add_parser('stop', help='Stop target containers')
+    stop_command = subparsers.add_parser('stop',
+                                         help='Stop target containers',
+                                         parents=[base_command_parent_parser])
     stop_command.add_argument('-t',
                               '--time',
                               help='Seconds to wait for stop before killing it (default=10)',
                               type=int,
                               default=10)
-    stop_command.add_argument('targets', nargs='+')
 
     # rm
-    rm_command = subparsers.add_parser('rm', help='Remove targets')
+    rm_command = subparsers.add_parser('rm',
+                                       help='Remove targets',
+                                       parents=[base_command_parent_parser])
     rm_command.add_argument('-f', '--force', help='Kill targets even if they are running', action='store_true')
     rm_command.add_argument('-v',
                             '--volumes',
                             help='Remove the volumes associated with the container',
                             action='store_true')
-    rm_command.add_argument('targets', nargs='+')
-
-    # lift
-    lift_command = subparsers.add_parser('lift', help='Provision and run targets', parents=[run_parent_parser])
-
-    # TODO: Make a more pluginable args parser. (Copied lift's args from run and provision)
-    lift_command.add_argument('-dv',
-                              '--delete-volumes',
-                              help='Image: Delete named_volumes that are used by this image',
-                              action='store_true')
-    lift_command.add_argument('-pco',
-                              '--print-command-only',
-                              help='Will enforce dry run and print the run command only, no logs at all',
-                              action='store_true')
-    lift_command.add_argument('-n', '--no-cache', help='Don\'t use cache images on build', action='store_true')
-    lift_command.add_argument('--force-rm',
-                              help='Image: Always remove intermediate containers. '
-                                   'NamedVolume: Delete existing before creation',
-                              action='store_true')
-    lift_command.add_argument('-tl',
-                              '--skip-tag-local',
-                              help='If no context is given, provision will perform pull and '
-                                   'skip tagging the image with its local repository (default: False)',
-                              dest='tag_local',
-                              action='store_false')
 
     # serialize
-    serialize_command = subparsers.add_parser('serialize', help='Get a JSON representation of the targets')
-    serialize_command.add_argument('targets', nargs='+')
+    subparsers.add_parser('serialize',
+                          help='Get a JSON representation of the targets',
+                          parents=[base_command_parent_parser])
 
     # push
-    push_command = subparsers.add_parser('push', help='Push targets')
-    push_command.add_argument('targets', nargs='+')
+    push_command = subparsers.add_parser('push',
+                                         help='Push targets',
+                                         parents=[base_command_parent_parser])
     push_command.add_argument('-nc',
                               '--no-cleanup',
                               help='After pushing, delete the tagged image created to push',
                               action='store_true')
 
     # pull
-    pull_command = subparsers.add_parser('pull', help='Pull targets')
-    pull_command.add_argument('targets', nargs='+')
-    pull_command.add_argument('-tl',
-                              '--tag-local',
-                              help='After pulling, tag the image with its local repository',
-                              action='store_true')
+    pull_parent_parser = argparse.ArgumentParser(add_help=False)
+    pull_parent_parser.add_argument('-tl',
+                                    '--tag-local',
+                                    help='After pulling, tag the image with its local repository',
+                                    action='store_true')
+    subparsers.add_parser('pull',
+                          help='Pull targets',
+                          parents=[base_command_parent_parser, pull_parent_parser])
 
-    # options common to all commands:
-    for cmd_parse in [
-        provision_command,
-        run_command,
-        stop_command,
-        rm_command,
-        lift_command,
-        push_command,
-        pull_command,
-        serialize_command
-    ]:
-        cmd_parse.add_argument('-e',
-                               '--exclude',
-                               help='Exclude targets when running manof cmd (comma-delimited, no spaces)',
-                               default='')
-
-        # TODO: Change default to 'docker.io'. Currently default is None for backwards compatibility
-        cmd_parse.add_argument('-r',
-                               '--repository',
-                               help='The repository from which images shall be taken from or pushed to',
-                               default=None)
+    # lift
+    subparsers.add_parser('lift',
+                          help='Provision and run targets',
+                          parents=[
+                              base_command_parent_parser,
+                              provision_parent_command,
+                              run_parent_parser,
+                          ])
 
     known_option_strings = parser._option_string_actions.keys()
 
