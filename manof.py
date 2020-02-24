@@ -193,7 +193,6 @@ def _register_arguments(parser):
                           parents=[
                               base_command_parent_parser,
                               provision_parent_command,
-                              pull_parent_parser,
                               run_parent_parser,
                           ])
 
