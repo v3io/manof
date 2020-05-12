@@ -11,10 +11,6 @@ pip-selfcheck.json
 *.egg-info
 .coverage
 .ziggy
-.idea/workspace.xml
-.idea/misc.xml
-.idea/vcs.xml
-.idea/dictionaries
-.idea/inspectionProfiles
-.idea/modules.xml
-.idea/manof.iml
+
+.idea/*
+!.idea/runConfigurations/
