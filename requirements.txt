@@ -1,6 +1,6 @@
 inflection==0.3.1
 simplejson==3.8.2
-Twisted==19.7.0
+Twisted==20.3.0
 pytz==2016.7
 colorama==0.3.3
 pygments==2.2.0
