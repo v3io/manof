@@ -15,7 +15,7 @@ class FilebeatJsonFormatter(logging.Formatter):
             more = dict(record.vars) if len(record.vars) else {}
             try:
                 del more['ctx']
-            except:
+            except Exception:
                 pass
         except Exception as exc:
             more = 'Record vars are not parsable: {0}'.format(str(exc))

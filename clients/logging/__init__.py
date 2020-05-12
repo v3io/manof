@@ -82,16 +82,16 @@ class TwistedExceptionSink(object):
                         'Unhandled exception in deferred',
                         failure=str(event_info['failure']).replace('\n', '\n\r'),
                         traceback=str(event_info['failure'].getBriefTraceback()).replace('\n', '\n\r'))
-                except:
+                except Exception:
                     pass
 
                 try:
                     if len(event_info['message']) > 0:
                         self.logger_instance.error(
                             str(event_info['message']).replace('\n', '\n\r'))
-                except:
+                except Exception:
                     pass
-        except:
+        except Exception:
             pass
 
 
@@ -216,3 +216,13 @@ class Client(object):
                                  'You can also force always/off.',
                             choices=['on', 'off', 'always'],
                             default='on')
+
+
+class TestingClient(Client):
+    """
+    An override of the logging client with defaults suitable for testing
+    """
+    def __init__(self, name='test', initial_severity='debug'):
+        super(TestingClient, self).__init__(name,
+                                            initial_severity,
+                                            log_colors='always')

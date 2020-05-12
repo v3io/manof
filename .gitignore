@@ -16,4 +16,5 @@ pip-selfcheck.json
 .idea/vcs.xml
 .idea/dictionaries
 .idea/inspectionProfiles
-.idea/*
+.idea/modules.xml
+.idea/manof.iml
