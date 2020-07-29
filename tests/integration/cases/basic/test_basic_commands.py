@@ -1,14 +1,11 @@
-import os
-
 from twisted.internet import defer
 
-import manof
+import manof.utils
 import core
 import tests.integration
 
 
 class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
-
     def manof_args(self):
         return {
             'parallel': None,
@@ -25,7 +22,9 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
         manofest = self._load_manofest_targets('LoadTestImage')
 
         self.assertEqual(type(manofest), core.RootTarget)
-        self.assertEqual(manofest.to_dict()['dependent_targets'], expected_dependent_targets)
+        self.assertEqual(
+            manofest.to_dict()['dependent_targets'], expected_dependent_targets
+        )
 
     @defer.inlineCallbacks
     def test_pull_images(self):
@@ -37,16 +36,20 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
 
         # sanity - removing image if exists
         self._logger.debug('Removing docker image', docker_image=docker_image)
-        yield manof.utils.execute('docker rmi -f {0}'.format(docker_image),
-                                  cwd=None,
-                                  quiet=True,
-                                  logger=self._logger)
+        yield manof.utils.execute(
+            'docker rmi -f {0}'.format(docker_image),
+            cwd=None,
+            quiet=True,
+            logger=self._logger,
+        )
 
         # pull the image using manof
         yield self._manof.pull()
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
-                                  cwd=None,
-                                  quiet=False,
-                                  logger=self._logger)
+        yield manof.utils.execute(
+            'docker image history -Hq {0}'.format(docker_image),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )

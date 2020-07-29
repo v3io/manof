@@ -7,18 +7,27 @@ import subprocess
 
 
 def run(command):
-    subprocess.check_call(['/bin/bash', '-c', command],
-                          stdout=sys.stdout, stderr=sys.stderr)
+    subprocess.check_call(
+        ['/bin/bash', '-c', command], stdout=sys.stdout, stderr=sys.stderr
+    )
 
 
 def register_arguments():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-o', '--offline-install-path', help='The dir path to install pip packages from.')
-    parser.add_argument('--no-link', action='store_true',
-                        help='Do not remove or create symlink')
-    parser.add_argument('--dev', action='store_true',
-                        help='Install dev requirements in addition to common requirements')
+    parser.add_argument(
+        '-o',
+        '--offline-install-path',
+        help='The dir path to install pip packages from.',
+    )
+    parser.add_argument(
+        '--no-link', action='store_true', help='Do not remove or create symlink'
+    )
+    parser.add_argument(
+        '--dev',
+        action='store_true',
+        help='Install dev requirements in addition to common requirements',
+    )
 
     return parser.parse_args()
 
@@ -26,13 +35,13 @@ def register_arguments():
 def _create_sym_link():
 
     # symlink to run
-    ln_cmd = 'ln -sfF {0}/run /usr/local/bin/manof'.format(os.getcwd())
+    ln_cmd = f'ln -sfF {os.getcwd()}/run /usr/local/bin/manof'
 
     # first try without sudo, then with
     try:
         run(ln_cmd)
     except subprocess.CalledProcessError:
-        run('sudo {0}'.format(ln_cmd))
+        run(f'sudo {ln_cmd}')
 
 
 def main():
@@ -40,8 +49,7 @@ def main():
     if args.offline_install_path is None:
         local_pip_packages = ''
     else:
-        local_pip_packages = '--no-index --find-links=file:{}'.format(
-            args.offline_install_path)
+        local_pip_packages = f'--no-index --find-links=file:{args.offline_install_path}'
 
     retval = 0
     try:
@@ -53,17 +61,19 @@ def main():
         # (from a local dir if it exists)
         # "python -m pip install" instead of "pip install" handles a pip
         # issue where it fails in a long-named dir
-        run('virtualenv venv && source venv/bin/activate && '
-            'python -m pip install {0} incremental && '.format(local_pip_packages) +
-            'python -m pip install {0} -r {1}'.format(
-                local_pip_packages, requirements_file))
+        run(
+            f'virtualenv venv && '
+            f'source venv/bin/activate && '
+            f'python -m pip install {local_pip_packages} incremental && '
+            f'python -m pip install {local_pip_packages} -r {requirements_file}'
+        )
 
         if not args.no_link:
             _create_sym_link()
     except subprocess.CalledProcessError as e:
         retval = e.returncode
     else:
-        print 'Installation complete. Enjoy your manof!'
+        print('Installation complete. Enjoy your manof!')
 
     sys.exit(retval)
 

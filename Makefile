@@ -1,4 +1,3 @@
-SYSTEM_PYTHON = python2.7
 VENV_PYTHON = ./venv/bin/python
 TESTER = ./venv/bin/nosetests
 LINTER = ./venv/bin/flake8
@@ -8,8 +7,22 @@ all: venv lint test
 	@echo Done.
 
 .PHONY: lint
-lint: venv
-	$(LINTER) .
+lint: venv flake8 fmt-check
+
+.PHONY: flake8
+flake8:
+	@echo "Running flake8 lint..."
+	$(VENV_PYTHON) -m flake8 .
+
+.PHONY: fmt
+fmt:
+	@echo "Running black fmt..."
+	$(VENV_PYTHON) -m black --skip-string-normalization .
+
+.PHONY: fmt-check
+fmt-check:
+	@echo "Running black fmt check..."
+	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff -S .
 
 .PHONY: test
 test: test-unit test-integ
@@ -28,5 +41,5 @@ install: venv
 	@echo Installed
 
 venv:
-	$(SYSTEM_PYTHON) ./install --dev
+	python ./install --dev
 	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin

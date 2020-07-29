@@ -8,8 +8,8 @@ import manof
 # Image groups
 #
 
-class MobyBase(manof.Image):
 
+class MobyBase(manof.Image):
     @property
     def detach(self):
         return False
@@ -44,7 +44,6 @@ class MobyBase(manof.Image):
 
 
 class MobyUbuntu(MobyBase):
-
     @property
     def image_name(self):
         return 'ubuntu:16.04'
@@ -71,7 +70,6 @@ class MobyUbuntu(MobyBase):
 
 
 class MobyAlpine(MobyBase):
-
     @property
     def image_name(self):
         return 'alpine:3.7'
@@ -98,7 +96,6 @@ class MobyAlpine(MobyBase):
 
 
 class ImageA(manof.Image):
-
     @property
     def image_name(self):
         return 'ubuntu:16.04'
@@ -133,7 +130,6 @@ class ImageA(manof.Image):
 
 
 class ImageB(ImageA):
-
     @classmethod
     def alias(cls):
         return 'imageb'
@@ -145,13 +141,13 @@ class ImageB(ImageA):
             {'MY_ENV_2': 'TARGET_VALUE_2'},
         ]
 
+
 #
 # Volumes
 #
 
 
 class VolumeA(manof.NamedVolume):
-
     def register_args(self, parser):
         parser.add_argument('--node-name', type=str, default='node0')
 
@@ -183,7 +179,6 @@ class VolumeB(VolumeA):
 
 
 class MyImages(manof.Group):
-
     @property
     def members(self):
         return [
@@ -191,13 +186,13 @@ class MyImages(manof.Group):
             'ImageB',
         ]
 
+
 #
 # volume groups
 #
 
 
 class MyVolumes(manof.Group):
-
     @property
     def members(self):
         return [

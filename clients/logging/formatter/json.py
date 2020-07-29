@@ -1,11 +1,10 @@
 import datetime
 import logging
 
-import helpers
+import clients.logging.formatter.helpers as helpers
 
 
 class FilebeatJsonFormatter(logging.Formatter):
-
     def format(self, record):
 
         # handle non-json-parsable vars:
@@ -32,7 +31,7 @@ class FilebeatJsonFormatter(logging.Formatter):
             'what': what,
             'more': more,
             'ctx': record.vars.get('ctx', ''),
-            'lang': 'py'
+            'lang': 'py',
         }
 
         return helpers.JsonFormatter.format_to_json_str(output)

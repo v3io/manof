@@ -14,7 +14,6 @@ import manof.utils
 
 
 class Target(object):
-
     def __init__(self, logger, args):
         self._logger = logger.get_child(self.name)
         self._args = args
@@ -40,19 +39,21 @@ class Target(object):
         # when _update_env_override() will be called, these will be set in the environment
 
         for env in self.env:
-            if isinstance(env, basestring):
+            if isinstance(env, str):
                 envvar_name = env
             elif isinstance(env, dict):
-                envvar_name = env.keys()[0]
+                envvar_name = next(iter(env.keys()))
             else:
-                raise RuntimeError('env var not defined as string or dict: {0}'.format(env))
+                raise RuntimeError(
+                    'env var not defined as string or dict: {0}'.format(env)
+                )
 
             # register new arg that will override this env var
             argument = self._to_argument(envvar_name)
             self._logger.debug('Registering env arg', argument=argument)
-            parser.add_argument(argument,
-                                required=False,
-                                help='Environment variable population option')
+            parser.add_argument(
+                argument, required=False, help='Environment variable population option'
+            )
 
     def update_args(self, args):
         vars(self._args).update(vars(args))
@@ -82,8 +83,9 @@ class Target(object):
             value = getattr(self, attr)
 
             # serialize everything except methods and functions (static)
-            if isinstance(value, types.MethodType) or \
-               isinstance(value, types.FunctionType):
+            if isinstance(value, types.MethodType) or isinstance(
+                value, types.FunctionType
+            ):
                 continue
 
             if attr == 'dependent_targets':
@@ -95,13 +97,15 @@ class Target(object):
     def pprint_json(self, some_object):
         formatted_json = simplejson.dumps(some_object, indent=2)
         if sys.stdout.isatty():
-            colorful_json = pygments.highlight(formatted_json,
-                                               pygments.lexers.JsonLexer(),
-                                               pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
+            colorful_json = pygments.highlight(
+                formatted_json,
+                pygments.lexers.JsonLexer(),
+                pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'),
+            )
 
-            print colorful_json
+            print(colorful_json)
         else:
-            print formatted_json
+            print(formatted_json)
 
     @property
     def env(self):
@@ -117,11 +121,13 @@ class Target(object):
 
     @defer.inlineCallbacks
     def _run_command(self, command, cwd=None, raise_on_error=True, env=None):
-        self._logger.debug('Running command',
-                           command=command,
-                           cwd=cwd,
-                           raise_on_error=raise_on_error,
-                           env=env)
+        self._logger.debug(
+            'Running command',
+            command=command,
+            cwd=cwd,
+            raise_on_error=raise_on_error,
+            env=env,
+        )
 
         # combine commands if list
         if isinstance(command, list):
@@ -129,11 +135,9 @@ class Target(object):
 
         # if dry run, do nothing
         if not self._args.dry_run:
-            result = yield manof.utils.execute(command,
-                                               cwd=cwd,
-                                               quiet=not raise_on_error,
-                                               env=env,
-                                               logger=self._logger)
+            result = yield manof.utils.execute(
+                command, cwd=cwd, quiet=not raise_on_error, env=env, logger=self._logger
+            )
         else:
             result = yield '', '', 0
 
@@ -144,7 +148,7 @@ class Target(object):
 
         # remove prefix
         if envvar.startswith(self.env_prefix):
-            argument = argument[len(self.env_prefix):]
+            argument = argument[len(self.env_prefix) :]
 
         argument = '{0}_{1}'.format(self.name, argument).lower()
 
