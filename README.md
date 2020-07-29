@@ -259,7 +259,7 @@ when invoking it, using the `-mp/--manofest-path` cli switch.
 
 # Pre-requisites
 
-- [python 2.7](https://www.python.org/downloads/)
+- [python 3.8](https://www.python.org/downloads/)
 - [pip](https://pip.pypa.io/en/stable/installing/)
 - [virtualenv](https://virtualenv.pypa.io/en/stable/installation/)
 - [docker](https://docs.docker.com/install/) (well, duh) - Any docker-CE/EE version would do. 
