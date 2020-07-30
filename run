@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+NOTE: It is important to keep this part BC with py2 as well
+That is the reason we use py2 string formatting.
+
+The reason is, python 2 code, that would call manof, would use this entrypoint and thus it should be BC with py2
+"""
+
 import os
 import sys
 import subprocess
@@ -10,10 +17,9 @@ args = args.replace('\"', '\\\"')
 manof_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
 try:
-    subprocess.run('source {0}/venv/bin/activate && python3 {0}/manof.py {1}'.format(manof_path, args),
-                   shell=True,
-                   check=True,
-                   executable='/bin/bash')
+    subprocess.check_call('source {0}/venv/bin/activate && python3 {0}/manof.py {1}'.format(manof_path, args),
+                          shell=True,
+                          executable='/bin/bash')
 
 except Exception as exc:
 
