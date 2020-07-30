@@ -358,7 +358,7 @@ class Image(manof.Target):
             command += f'--memory-swappiness {self.memory_swappiness} '
 
         if self.oom_kill_disable:
-            command += f'--oom-kill-disable '
+            command += '--oom-kill-disable '
 
         # add cpus limit args
         if self.cpus:
