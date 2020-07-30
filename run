@@ -3,10 +3,27 @@
 import os
 import sys
 import subprocess
+import traceback
 
 args = ' '.join(sys.argv[1:])
 args = args.replace('\"', '\\\"')
 manof_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-subprocess.check_call(f'source {manof_path}/venv/bin/activate && python {manof_path}/manof.py {args}',
-                      shell=True,
-                      executable='/bin/bash')
+
+try:
+    subprocess.run(f'source {manof_path}/venv/bin/activate && python3 {manof_path}/manof.py {args}',
+                   shell=True,
+                   check=True,
+                   executable='/bin/bash')
+
+except Exception as exc:
+
+    # by default: save us the traceback
+    # DEV NOTE: if you need to debug tracer, you might want to:
+    # - uncomment this
+    # - print the full CalledProcessError
+    # traceback.print_exc()
+
+    if not isinstance(exc, subprocess.CalledProcessError):
+        print(exc)
+
+    sys.exit(1)
