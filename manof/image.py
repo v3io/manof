@@ -301,7 +301,7 @@ class Image(manof.Target):
             )
             yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
 
-        self.pprint_json(
+        manof.utils.pprint_json(
             {
                 'image_name': self.image_name,
                 'remote_image_name': self.remote_image_name,

@@ -1,8 +1,13 @@
 import os
+import sys
+import io
+from typing import List, Union, Dict
 
 from twisted.internet import defer, protocol
 
-from io import BytesIO as StringIO
+import simplejson
+import pygments.lexers
+import pygments.formatters
 
 
 class CommandFailedError(Exception):
@@ -57,34 +62,32 @@ class CommandFailedError(Exception):
         return self._err
 
 
-def git_pull(logger, path):
+async def git_pull(logger, path):
     logger.debug('Pulling', **locals())
-    return shell_run(logger, 'git pull', cwd=path)
+    return await shell_run(logger, 'git pull', cwd=path)
 
 
-@defer.inlineCallbacks
-def shell_run(logger, command, cwd=None, quiet=False, env=None):
+async def shell_run(logger, command, cwd=None, quiet=False, env=None):
     logger.debug('Running command', **locals())
 
     # combine commands if list
     if isinstance(command, list):
         command = ' && '.join(command)
 
-    result = yield execute(command, cwd, quiet, env=env, logger=logger)
-    defer.returnValue(result)
+    return await defer.ensureDeferred(
+        execute(command, cwd, quiet, env=env, logger=logger)
+    )
 
 
-@defer.inlineCallbacks
-def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
+async def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
     logger.debug('Ensuring pip requirements exist', **locals())
 
-    yield venv_run(
+    await venv_run(
         logger, venv_path, 'pip install -r {0}'.format(requirement_file_path)
     )
 
 
-@defer.inlineCallbacks
-def venv_run(logger, venv_path, command, cwd=None, quiet=False):
+async def venv_run(logger, venv_path, command, cwd=None, quiet=False):
     logger.debug('Running command in virtualenv', **locals())
 
     commands = [
@@ -93,17 +96,18 @@ def venv_run(logger, venv_path, command, cwd=None, quiet=False):
         'deactivate',
     ]
 
-    result = yield shell_run(logger, commands, cwd, quiet)
-    defer.returnValue(result)
+    return await shell_run(logger, commands, cwd, quiet)
 
 
-def getProcessOutputAndValue(executable, args=(), env={}, path=None, reactor=None):
+def getProcessOutputAndValue(executable, args=(), env=None, path=None, reactor=None):
     """
     Spawn a process and returns a Deferred that will be called back with
     its output (from stdout and stderr) and it's exit code as (out, err, code)
     If a signal is raised, the Deferred will errback with the stdout and
     stderr up to that point, along with the signal, as (out, err, signalNum)
     """
+    if env is None:
+        env = {}
     return _callProtocolWithDeferred(
         _EverythingGetter, executable, args, env, path, reactor
     )
@@ -122,8 +126,8 @@ def _callProtocolWithDeferred(protocol, executable, args, env, path, reactor=Non
 class _EverythingGetter(protocol.ProcessProtocol):
     def __init__(self, deferred):
         self.deferred = deferred
-        self.outBuf = StringIO()
-        self.errBuf = StringIO()
+        self.outBuf = io.BytesIO()
+        self.errBuf = io.BytesIO()
         self.outReceived = self.outBuf.write
         self.errReceived = self.errBuf.write
 
@@ -280,3 +284,17 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
         last_exc.message
     )
     raise last_exc
+
+
+def pprint_json(obj: Union[List, Dict]):
+    formatted_json = simplejson.dumps(obj, indent=2)
+    if sys.stdout.isatty():
+        json_lexer = pygments.lexers.get_lexer_by_name('Json')
+        formatter = pygments.formatters.get_formatter_by_name(
+            'terminal16m', style='paraiso-dark'
+        )
+        colorful_json = pygments.highlight(formatted_json, json_lexer, formatter,)
+
+        print(colorful_json)
+    else:
+        print(formatted_json)

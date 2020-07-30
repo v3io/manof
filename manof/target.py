@@ -1,12 +1,6 @@
 import inflection
 import types
 import os
-import simplejson
-import sys
-
-import pygments
-import pygments.formatters
-import pygments.lexers
 
 from twisted.internet import defer
 
@@ -93,19 +87,6 @@ class Target(object):
 
             d[attr] = value
         return d
-
-    def pprint_json(self, some_object):
-        formatted_json = simplejson.dumps(some_object, indent=2)
-        if sys.stdout.isatty():
-            colorful_json = pygments.highlight(
-                formatted_json,
-                pygments.lexers.JsonLexer(),
-                pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'),
-            )
-
-            print(colorful_json)
-        else:
-            print(formatted_json)
 
     @property
     def env(self):

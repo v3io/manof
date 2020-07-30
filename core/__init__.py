@@ -2,13 +2,8 @@ import argparse
 import sys
 import inspect
 import inflection
-import simplejson
 import os
 import importlib.machinery
-
-import pygments
-import pygments.formatters
-import pygments.lexers
 
 from twisted.internet import defer
 
@@ -119,7 +114,7 @@ class Manof(object):
 
     @defer.inlineCallbacks
     def update(self):
-        yield self._update_manager.update()
+        yield defer.ensureDeferred(self._update_manager.update())
 
     @defer.inlineCallbacks
     def serialize(self):
@@ -131,17 +126,7 @@ class Manof(object):
             target_dict = yield target.to_dict()
             targets.append(target_dict)
 
-        formatted_json = simplejson.dumps(targets, indent=2)
-        if sys.stdout.isatty():
-            colorful_json = pygments.highlight(
-                formatted_json,
-                pygments.lexers.JsonLexer(),
-                pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'),
-            )
-
-            print(colorful_json)
-        else:
-            print(formatted_json)
+        manof.utils.pprint_json(targets)
 
     @defer.inlineCallbacks
     def _run_command_on_target_tree(self, command_name):
@@ -398,10 +383,10 @@ class Manof(object):
             if dependent_target.dependent_targets:
 
                 # iterate through the dependent targets of the dependent target
-                for dependent_target in self._get_next_dependent_target(
+                for next_dependent_target in self._get_next_dependent_target(
                     dependent_target
                 ):
-                    yield dependent_target
+                    yield next_dependent_target
 
     @staticmethod
     def _enforce_no_store_true_args(parser):
@@ -409,7 +394,7 @@ class Manof(object):
             if isinstance(action, argparse._StoreTrueAction):
                 error_msg = (
                     'manofest.py doens\'t support argument registration of'
-                    ' type=\'store_true\' \n'
-                    + 'offending action={0}'.format(action)
+                    ' type=\'store_true\' \n '
+                    f'offending action={action}'
                 )
                 raise SyntaxError(error_msg)
