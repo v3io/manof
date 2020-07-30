@@ -280,10 +280,8 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
         else:
             defer.returnValue(result)
 
-    last_exc.message = 'Failed to execute command with given retries:\n {0}'.format(
-        last_exc.message
-    )
-    raise last_exc
+    error_message = f'Failed to execute command with given retries:\n {last_exc}'
+    raise RuntimeError(error_message) from last_exc
 
 
 def pprint_json(obj: Union[List, Dict]):

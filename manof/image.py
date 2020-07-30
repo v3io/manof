@@ -26,9 +26,11 @@ class Image(manof.Target):
 
         # if there is a context, do a build
         if self.context is not None:
-            command = 'docker build --rm {0} --tag={1} -f {2} {3}'.format(
-                ' '.join(provision_args), self.image_name, self.dockerfile, self.context
-            )
+            command = f'docker build ' \
+                      f'--rm {" ".join(provision_args)} ' \
+                      f'--tag={self.image_name} ' \
+                      f'-f {self.dockerfile} ' \
+                      f'{self.context}'
 
             # if image provides a programmatic docker ignore, we need to create a temporary
             # file at the context and remove it when we're done
@@ -38,7 +40,7 @@ class Image(manof.Target):
                 try:
 
                     # write the docker ignore
-                    with open(dockerignore_path, 'wb') as dockerignore_file:
+                    with open(dockerignore_path, 'w') as dockerignore_file:
                         dockerignore_file.write('\n'.join(self.dockerignore))
 
                     # do the build
@@ -91,40 +93,40 @@ class Image(manof.Target):
             command += '--privileged '
 
         if self.pid:
-            command += '--pid {0} '.format(self.pid)
+            command += f'--pid {self.pid} '
 
         command = self._add_resource_limit_arguments(command)
 
         # add devices
         for device in self.devices:
             if device:
-                command += '--device={0} '.format(device)
+                command += f'--device={device} '
 
         # add dns if needed, this allowes for the container to resolve addresses using custom dns resolvers
         for dns_ip in self.dns:
-            command += '--dns {0} '.format(dns_ip)
+            command += f'--dns {dns_ip} '
 
         # add net
-        command += '--net {0} '.format(self.net)
+        command += f'--net {self.net} '
 
         # add custom hosts to /etc/hosts
         if self.add_hosts is not None:
             for hostname, address in self.add_hosts.items():
-                command += '--add-host {0}:{1} '.format(hostname, address)
+                command += f'--add-host {hostname}:{address} '
 
         # add log driver
         if self.log_driver is not None:
-            command += '--log-driver {0} '.format(self.log_driver)
+            command += f'--log-driver {self.log_driver} '
 
         # add labels
         if len(self.labels):
             for k, v in self.labels.items():
-                command += '--label {0}={1} '.format(k, v)
+                command += f'--label {k}={v} '
 
         # add user/group
         if self.user_and_group is not None:
             user, group = self.user_and_group
-            command += '--user {0}:{1} '.format(user, group)
+            command += f'--user {user}:{group} '
 
         # add health check related args
         command += self._generate_healthcheck_args()
@@ -132,14 +134,14 @@ class Image(manof.Target):
         # add published ports
         for exposed_port in self.exposed_ports:
             if isinstance(exposed_port, int):
-                command += '--publish {0}:{0} '.format(exposed_port)
+                command += f'--publish {exposed_port}:{exposed_port} '
             elif isinstance(exposed_port, dict):
-                host_port, container_port = exposed_port.items()[0]
-                command += '--publish {0}:{1} '.format(host_port, container_port)
+                host_port, container_port = next(iter(exposed_port.items()))
+                command += f'--publish {host_port}:{container_port} '
 
         # add volumes
         for volume in self.volumes:
-            host_path, container_path = volume.items()[0]
+            host_path, container_path = next(iter(volume.items()))
 
             # handle named-volume creation
             if self._classname_is_subclass(host_path, manof.NamedVolume):
@@ -153,7 +155,7 @@ class Image(manof.Target):
                 if not host_path.startswith('/'):
                     host_path = os.path.join(self.host_manofest_dir, host_path)
 
-            command += '--volume {0}:{1} '.format(host_path, container_path)
+            command += f'--volume {host_path}:{container_path} '
 
         # replace env vars with argument-given ones:
         for env in self._update_env_override():
@@ -173,22 +175,22 @@ class Image(manof.Target):
             else:
                 raise RuntimeError('Invalid env')
 
-            command += '--env {0}={1} '.format(lvalue, pipes.quote(str(rvalue)))
+            command += f'--env {lvalue}={ pipes.quote(str(rvalue))} '
 
         # set hostname
         if self.hostname is not None:
-            command += '--hostname={0} '.format(self.hostname)
+            command += f'--hostname={self.hostname} '
 
         # set name
-        command += '--name {0} '.format(self.container_name)
+        command += f'--name {self.container_name} '
 
         for cap in self.cap_add:
             if cap:
-                command += '--cap-add={0} '.format(cap)
+                command += f'--cap-add={cap} '
 
         for cap in self.cap_drop:
             if cap:
-                command += '--cap-drop={0} '.format(cap)
+                command += f'--cap-drop={cap} '
 
         command = self._add_device_arguments(command)
 
@@ -243,7 +245,7 @@ class Image(manof.Target):
     def stop(self):
         self._logger.debug('Stopping')
 
-        command = 'docker stop --time={0} '.format(self._args.time)
+        command = f'docker stop --time={self._args.time} '
         command += self.container_name
 
         # stop container
@@ -288,8 +290,8 @@ class Image(manof.Target):
         # tag and push
         yield self._run_command(
             [
-                'docker tag {0} {1}'.format(self.image_name, self.remote_image_name),
-                'docker push {0}'.format(self.remote_image_name),
+                f'docker tag {self.image_name} {self.remote_image_name}',
+                f'docker push {self.remote_image_name}',
             ]
         )
 
@@ -299,7 +301,7 @@ class Image(manof.Target):
                 image_name=self.image_name,
                 remote_image_name=self.remote_image_name,
             )
-            yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
+            yield self._run_command(f'docker rmi {self.remote_image_name}')
 
         manof.utils.pprint_json(
             {
@@ -317,7 +319,7 @@ class Image(manof.Target):
         )
 
         # first, pull the image
-        yield self._run_command('docker pull {0}'.format(self.remote_image_name))
+        yield self._run_command(f'docker pull {self.remote_image_name}')
 
         # tag pulled images with its local repository + name
         if self._args.tag_local:
@@ -339,38 +341,38 @@ class Image(manof.Target):
 
         # add memory limit args
         if self.memory:
-            command += '--memory {0} '.format(self.memory)
+            command += f'--memory {self.memory} '
 
         if self.memory_reservation:
-            command += '--memory-reservation {0} '.format(self.memory_reservation)
+            command += f'--memory-reservation {self.memory_reservation} '
 
         if self.kernel_memory:
-            command += '--kernel-memory {0} '.format(self.kernel_memory)
+            command += f'--kernel-memory {self.kernel_memory} '
 
         if self.memory_swap:
-            command += '--memory-swap {0} '.format(self.memory_swap)
+            command += f'--memory-swap {self.memory_swap} '
 
         if self.memory_swappiness:
-            command += '--memory-swappiness {0} '.format(self.memory_swappiness)
+            command += f'--memory-swappiness {self.memory_swappiness} '
 
         if self.oom_kill_disable:
-            command += '--oom-kill-disable '
+            command += f'--oom-kill-disable '
 
         # add cpus limit args
         if self.cpus:
-            command += '--cpus {0} '.format(self.cpus)
+            command += f'--cpus {self.cpus} '
 
         if self.cpu_period:
-            command += '--cpu-period {0} '.format(self.cpu_period)
+            command += f'--cpu-period {self.cpu_period} '
 
         if self.cpu_quota:
-            command += '--cpu-quota {0} '.format(self.cpu_quota)
+            command += f'--cpu-quota {self.cpu_quota} '
 
         if self.cpuset_cpus:
-            command += '--cpuset-cpus {0} '.format(self.cpuset_cpus)
+            command += f'--cpuset-cpus {self.cpuset_cpus} '
 
         if self.cpu_shares:
-            command += '--cpu-shares {0} '.format(self.cpu_shares)
+            command += f'--cpu-shares {self.cpu_shares} '
 
         return command
 
@@ -378,23 +380,23 @@ class Image(manof.Target):
 
         # set device cgroup rule
         if self.device_cgroup_rule:
-            command += '--device-cgroup-rule={0} '.format(self.device_cgroup_rule)
+            command += f'--device-cgroup-rule={self.device_cgroup_rule} '
 
         # set device read bps
         if self.device_read_bps:
-            command += '--device-read-bps={0} '.format(self.device_read_bps)
+            command += f'--device-read-bps={self.device_read_bps} '
 
         # set device read iops
         if self.device_read_iops:
-            command += '--device-read-iops={0} '.format(self.device_read_iops)
+            command += f'--device-read-iops={self.device_read_iops} '
 
         # set device write bps
         if self.device_write_bps:
-            command += '--device-write-bps={0} '.format(self.device_write_bps)
+            command += f'--device-write-bps={self.device_write_bps} '
 
         # set device write iops
         if self.device_write_iops:
-            command += '--device-write-iops={0} '.format(self.device_write_iops)
+            command += f'--device-write-iops={self.device_write_iops} '
 
         return command
 
@@ -418,11 +420,11 @@ class Image(manof.Target):
 
     @property
     def image_name(self):
-        raise ValueError('{0}: Image name not set'.format(self.name))
+        raise ValueError(f'{self.name}: Image name not set')
 
     @property
     def local_repository(self):
-        raise ValueError('{0}: Local repository not set'.format(self.name))
+        raise ValueError(f'{self.name}: Local repository not set')
 
     @property
     def container_name(self):
@@ -698,7 +700,7 @@ class Image(manof.Target):
 
                     # instantiate
                     named_volume = volume(self._logger, self._args)
-                    d['volumes'][idx] = {named_volume.volume_name: item.values()[0]}
+                    d['volumes'][idx] = {named_volume.volume_name: next(iter(item.values()))}
         return d
 
     def _update_env_override(self):
@@ -740,12 +742,12 @@ class Image(manof.Target):
         )
 
         yield self._run_command(
-            'docker tag {0} {1}'.format(self.remote_image_name, self.image_name)
+            f'docker tag {self.remote_image_name} {self.image_name}'
         )
 
         # Clean repository from image name if provided
         if self.image_name != self.remote_image_name:
-            yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
+            yield self._run_command(f'docker rmi {self.remote_image_name}')
 
     @defer.inlineCallbacks
     def _ensure_named_volume_exists(self, volume_name):
@@ -763,7 +765,7 @@ class Image(manof.Target):
     def _delete_all_named_volumes(self):
         self._logger.debug('Removing named-volumes')
         for volume in self.volumes:
-            host_path, container_path = volume.items()[0]
+            host_path, container_path = next(iter(volume.items()))
             if self._classname_is_subclass(host_path, manof.NamedVolume):
 
                 # instantiate
@@ -778,16 +780,16 @@ class Image(manof.Target):
         arg_string = ''
 
         if self.health_cmd is not None:
-            arg_string += '--health-cmd=\"{0}\" '.format(self.health_cmd)
+            arg_string += f'--health-cmd=\"{self.health_cmd}\" '
 
         if self.health_interval is not None:
-            arg_string += '--health-interval={0} '.format(self.health_interval)
+            arg_string += f'--health-interval={self.health_interval} '
 
         if self.health_retries is not None:
-            arg_string += '--health-retries={0} '.format(self.health_retries)
+            arg_string += f'--health-retries={self.health_retries} '
 
         if self.health_timeout is not None:
-            arg_string += '--health-timeout={0} '.format(self.health_timeout)
+            arg_string += f'--health-timeout={self.health_timeout} '
 
         if self.no_healthcheck:
             arg_string += '--no-healthcheck '
@@ -815,6 +817,6 @@ class Image(manof.Target):
     def _disconnect_container_from_network(self, container_name, network):
         self._logger.debug('Disconnecting container from net')
         yield self._run_command(
-            'docker network disconnect -f {0} {1}'.format(network, container_name),
+            f'docker network disconnect -f {network} {container_name}',
             raise_on_error=False,
         )
