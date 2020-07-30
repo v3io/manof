@@ -26,11 +26,13 @@ class Image(manof.Target):
 
         # if there is a context, do a build
         if self.context is not None:
-            command = f'docker build ' \
-                      f'--rm {" ".join(provision_args)} ' \
-                      f'--tag={self.image_name} ' \
-                      f'-f {self.dockerfile} ' \
-                      f'{self.context}'
+            command = (
+                'docker build '
+                f'--rm {" ".join(provision_args)} '
+                f'--tag={self.image_name} '
+                f'-f {self.dockerfile} '
+                f'{self.context}'
+            )
 
             # if image provides a programmatic docker ignore, we need to create a temporary
             # file at the context and remove it when we're done
@@ -700,7 +702,9 @@ class Image(manof.Target):
 
                     # instantiate
                     named_volume = volume(self._logger, self._args)
-                    d['volumes'][idx] = {named_volume.volume_name: next(iter(item.values()))}
+                    d['volumes'][idx] = {
+                        named_volume.volume_name: next(iter(item.values()))
+                    }
         return d
 
     def _update_env_override(self):
