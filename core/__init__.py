@@ -1,10 +1,10 @@
 import argparse
 import sys
-import imp
 import inspect
 import inflection
 import simplejson
 import os
+import importlib.machinery
 
 import pygments
 import pygments.formatters
@@ -217,8 +217,7 @@ class Manof(object):
         )
 
         # start by loading the manofest module
-        self._logger.debug('Loading manofest', manofest_path=manofest_path)
-        manofest_module = imp.load_source('manofest', manofest_path)
+        manofest_module = self._load_manofest_module(manofest_path)
 
         # normalize to cls names
         excluded_targets = self._normalize_target_names_to_cls_names(
@@ -265,6 +264,13 @@ class Manof(object):
                 target_instances.append(target_instance)
 
         return target_instances
+
+    def _load_manofest_module(self, manofest_path):
+        self._logger.debug('Loading manofest', manofest_path=manofest_path)
+        manofest_module = importlib.machinery.SourceFileLoader(
+            'manofest', manofest_path
+        ).load_module()
+        return manofest_module
 
     def _normalize_target_names_to_cls_names(
         self, manofest_module, raw_target_names, skip_missing=False

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -7,7 +7,6 @@ import subprocess
 args = ' '.join(sys.argv[1:])
 args = args.replace('\"', '\\\"')
 manof_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-subprocess.run(f'source {manof_path}/venv/bin/activate && python {manof_path}/manof.py {args}',
-               check=True,
-               shell=True,
-               executable='/bin/bash')
+subprocess.check_call(f'source {manof_path}/venv/bin/activate && python {manof_path}/manof.py {args}',
+                      shell=True,
+                      executable='/bin/bash')
