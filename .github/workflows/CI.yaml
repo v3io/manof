@@ -10,6 +10,7 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,15 +21,13 @@ jobs:
           python-version: 3.8
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install virtualenv
-          make install
+        run: make install-ci
 
       - name: Run lint
         run: make lint
 
   unit_test:
+    name: Unit test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,15 +38,13 @@ jobs:
           python-version: 3.8
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install virtualenv
-          make install
+        run: make install-ci
 
       - name: Run unit test
         run: make test-unit
 
   integration_test:
+    name: Integration test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -58,10 +55,7 @@ jobs:
           python-version: 3.8
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install virtualenv
-          make install
+        run: make install-ci
 
       - name: Run integration test
         run: make test-integ

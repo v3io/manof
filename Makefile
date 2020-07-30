@@ -28,6 +28,10 @@ fmt-check:
 test: test-unit test-integ
 	@echo Finished running Tests
 
+venv:
+	python ./install --dev
+	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
+
 .PHONY: test-unit
 test-unit: venv
 	$(TESTER) tests/unit
@@ -40,6 +44,11 @@ test-integ: venv
 install: venv
 	@echo Installed
 
-venv:
-	python ./install --dev
-	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
+.PHONY: install-ci
+install-ci: install-venv install
+
+.PHONY: install-venv
+install-venv:
+	python -m pip install --upgrade pip
+	python -m pip install virtualenv
+
