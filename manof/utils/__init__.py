@@ -291,7 +291,7 @@ def pprint_json(obj: Union[List, Dict]):
         formatter = pygments.formatters.get_formatter_by_name(
             'terminal16m', style='paraiso-dark'
         )
-        colorful_json = pygments.highlight(formatted_json, json_lexer, formatter,)
+        colorful_json = pygments.highlight(formatted_json, json_lexer, formatter)
 
         print(colorful_json)
     else:
