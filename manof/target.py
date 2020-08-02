@@ -1,12 +1,6 @@
 import inflection
 import types
 import os
-import simplejson
-import sys
-
-import pygments
-import pygments.formatters
-import pygments.lexers
 
 from twisted.internet import defer
 
@@ -40,10 +34,10 @@ class Target(object):
         # when _update_env_override() will be called, these will be set in the environment
 
         for env in self.env:
-            if isinstance(env, basestring):
+            if isinstance(env, str):
                 envvar_name = env
             elif isinstance(env, dict):
-                envvar_name = env.keys()[0]
+                envvar_name = list(env.keys())[0]
             else:
                 raise RuntimeError('env var not defined as string or dict: {0}'.format(env))
 
@@ -93,15 +87,8 @@ class Target(object):
         return d
 
     def pprint_json(self, some_object):
-        formatted_json = simplejson.dumps(some_object, indent=2)
-        if sys.stdout.isatty():
-            colorful_json = pygments.highlight(formatted_json,
-                                               pygments.lexers.JsonLexer(),
-                                               pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
-
-            print colorful_json
-        else:
-            print formatted_json
+        self._logger.debug('Calling Target.pprint_json is deprecated, use `manof.utils.pprint_json` instead')
+        return manof.utils.pprint_json(some_object)
 
     @property
     def env(self):

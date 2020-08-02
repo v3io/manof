@@ -91,7 +91,7 @@ class ManofUnitTestCase(unittest.TestCase):
         self._logger.debug('Setting mocked image args', args=image_args)
         manof_args = mock.MagicMock()
         if image_args is not None:
-            for attr, val in image_args.iteritems():
+            for attr, val in image_args.items():
                 setattr(manof_args, attr, val)
 
         image._args = manof_args
@@ -99,7 +99,7 @@ class ManofUnitTestCase(unittest.TestCase):
         image._manofest_dir = os.path.dirname(image._manofest_path)
 
         self._logger.debug('Setting mocked image properties', properties=image_properties)
-        for property_name, property_val in image_properties.iteritems():
+        for property_name, property_val in image_properties.items():
             setattr(image, property_name, property_val)
 
         return image

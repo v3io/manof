@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-import helpers
+import clients.logging.formatter.helpers as helpers
 
 
 class FilebeatJsonFormatter(logging.Formatter):
@@ -18,12 +18,12 @@ class FilebeatJsonFormatter(logging.Formatter):
             except Exception:
                 pass
         except Exception as exc:
-            more = 'Record vars are not parsable: {0}'.format(str(exc))
+            more = f'Record vars are not parsable: {str(exc)}'
 
         try:
             what = record.getMessage()
         except Exception as exc:
-            what = 'Log message is not parsable: {0}'.format(str(exc))
+            what = f'Log message is not parsable: {str(exc)}'
 
         output = {
             'when': datetime.datetime.fromtimestamp(record.created).isoformat(),
