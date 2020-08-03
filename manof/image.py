@@ -171,7 +171,7 @@ class Image(manof.Target):
                 if rvalue is None:
                     continue
             elif isinstance(env, dict):
-                lvalue, rvalue = list(env.items())
+                lvalue, rvalue = list(env.items())[0]
             else:
                 raise RuntimeError('Invalid env')
 

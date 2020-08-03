@@ -243,7 +243,8 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
         else:
             defer.returnValue(result)
 
-    last_exc.message = 'Failed to execute command with given retries:\n {0}'.format(last_exc.message)
+    last_exc.message = 'Failed to execute command with given retries:\n {0}'\
+        .format(getattr(last_exc, 'message', str(last_exc)))
     raise last_exc
 
 
