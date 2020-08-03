@@ -196,16 +196,16 @@ def _register_arguments(parser):
                               run_parent_parser,
                           ])
 
-    known_option_strings = parser._option_string_actions.keys()
+    known_option_strings = list(parser._option_string_actions.keys())
 
     for subparser in subparsers.choices.values():
-        known_option_strings += subparser._option_string_actions.keys()
+        known_option_strings += list(subparser._option_string_actions.keys())
 
     # unique
     return set(known_option_strings)
 
 
-if __name__ == '__main__':
+def run():
 
     # create an argument parser
     ap = argparse.ArgumentParser()
@@ -217,4 +217,8 @@ if __name__ == '__main__':
     retval = _run(ap.parse_known_args()[0], known_option_strings)
 
     # return value
-    sys.exit(retval)
+    return retval
+
+
+if __name__ == '__main__':
+    sys.exit(run())

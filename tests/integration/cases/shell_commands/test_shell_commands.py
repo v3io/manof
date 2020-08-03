@@ -1,8 +1,6 @@
-import os
-
 from twisted.internet import defer
 
-import manof
+import manof.utils
 import tests.integration
 
 

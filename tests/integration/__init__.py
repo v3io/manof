@@ -1,12 +1,12 @@
 import os
 import mock
 import sys
-import imp
+import importlib.machinery
 
 from twisted.internet import defer
 from twisted.trial import unittest
 
-import manof
+import manof.utils
 import core
 import clients.logging
 
@@ -66,7 +66,7 @@ class IntegrationTestCase(unittest.TestCase):
 
     def _get_manof_image(self, image_name):
         manofest_path = os.path.join(self._working_dir, 'manofest.py')
-        manofest_module = imp.load_source('manofest', manofest_path)
+        manofest_module = importlib.machinery.SourceFileLoader('manofest', manofest_path).load_module()
         return getattr(manofest_module, image_name)(self._logger, mock.MagicMock())
 
 
@@ -82,7 +82,7 @@ class ManofIntegrationTestCase(IntegrationTestCase):
 
         self._manof = core.Manof(self._logger, self._manof_args, self._manof_known_args)
 
-        for arg_name, arg_val in self.manof_args().iteritems():
+        for arg_name, arg_val in self.manof_args().items():
             setattr(self._manof._args, arg_name, arg_val)
 
         yield defer.maybeDeferred(self.set_up)

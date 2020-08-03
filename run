@@ -1,14 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+"""
+NOTE: It is important to keep this part BC with py2 as well
+That is the reason we use py2 string formatting.
+The reason is, python 2 code, that would call manof, would use this entrypoint and thus it should be BC with py2
+"""
 
 import os
 import sys
 import subprocess
+import traceback
 
 args = ' '.join(sys.argv[1:])
 args = args.replace('\"', '\\\"')
 manof_path = os.path.join(os.path.dirname(os.path.realpath(__file__)))
-ret = subprocess.call('source {0}/venv/bin/activate && python {0}/manof.py {1}'.format(manof_path, args),
-                      shell=True,
-                      executable='/bin/bash')
 
-sys.exit(0 if ret == 0 else 1)
+try:
+    subprocess.check_call('source {0}/venv/bin/activate && python3 {0}/manof.py {1}'.format(manof_path, args),
+                          shell=True,
+                          executable='/bin/bash')
+
+except Exception as exc:
+
+    # by default: save us the traceback
+    # DEV NOTE: if you need to debug manof, you might want to:
+    # - uncomment this
+    # - print the full CalledProcessError
+    # traceback.print_exc()
+
+    sys.exit(1)

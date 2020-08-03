@@ -7,7 +7,7 @@ import re
 from twisted.internet import defer
 
 import manof
-import utils
+import manof.utils
 
 
 class Image(manof.Target):
@@ -40,7 +40,7 @@ class Image(manof.Target):
                 try:
 
                     # write the docker ignore
-                    with open(dockerignore_path, 'wb') as dockerignore_file:
+                    with open(dockerignore_path, 'w') as dockerignore_file:
                         dockerignore_file.write('\n'.join(self.dockerignore))
 
                     # do the build
@@ -111,7 +111,7 @@ class Image(manof.Target):
 
         # add custom hosts to /etc/hosts
         if self.add_hosts is not None:
-            for hostname, address in self.add_hosts.iteritems():
+            for hostname, address in self.add_hosts.items():
                 command += '--add-host {0}:{1} '.format(hostname, address)
 
         # add log driver
@@ -120,7 +120,7 @@ class Image(manof.Target):
 
         # add labels
         if len(self.labels):
-            for k, v in self.labels.iteritems():
+            for k, v in self.labels.items():
                 command += '--label {0}={1} '.format(k, v)
 
         # add user/group
@@ -136,12 +136,12 @@ class Image(manof.Target):
             if isinstance(exposed_port, int):
                 command += '--publish {0}:{0} '.format(exposed_port)
             elif isinstance(exposed_port, dict):
-                host_port, container_port = exposed_port.items()[0]
+                host_port, container_port = list(exposed_port.items())[0]
                 command += '--publish {0}:{1} '.format(host_port, container_port)
 
         # add volumes
         for volume in self.volumes:
-            host_path, container_path = volume.items()[0]
+            host_path, container_path = list(volume.items())[0]
 
             # handle named-volume creation
             if self._classname_is_subclass(host_path, manof.NamedVolume):
@@ -162,7 +162,7 @@ class Image(manof.Target):
 
             # single environment variable means set it to itself (x=x), thus forwarding the variable from the
             # outter env into the docker env
-            if isinstance(env, basestring):
+            if isinstance(env, str):
                 lvalue = env
                 rvalue = os.environ.get(lvalue, None)
 
@@ -171,7 +171,7 @@ class Image(manof.Target):
                 if rvalue is None:
                     continue
             elif isinstance(env, dict):
-                lvalue, rvalue = env.items()[0]
+                lvalue, rvalue = list(env.items())
             else:
                 raise RuntimeError('Invalid env')
 
@@ -205,18 +205,18 @@ class Image(manof.Target):
         command = command.strip()
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
-            print command
+            print(command)
 
         try:
             out, _, _ = yield self._run_command(command)
 
             if self.pipe_stdout:
-                print >> sys.stdout, out
+                sys.stdout.write(out)
 
         except Exception as exc:
             dangling_container_error = re.search(
                 'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).',
-                exc.message)
+                str(exc))
 
             if dangling_container_error is not None and self.force_run_with_disconnection:
                 container_name = dangling_container_error.group('container_name')
@@ -229,10 +229,10 @@ class Image(manof.Target):
             else:
 
                 if self.pipe_stderr:
-                    if isinstance(exc, utils.CommandFailedError):
-                        print >> sys.stderr, exc.err
+                    if isinstance(exc, manof.utils.CommandFailedError):
+                        sys.stderr.write(exc.err)
                     else:
-                        print >> sys.stderr, str(exc)
+                        sys.stderr.write(str(exc))
 
                 raise exc
 
@@ -397,7 +397,7 @@ class Image(manof.Target):
 
     @property
     def dockerfile(self):
-        if isinstance(self.context, basestring):
+        if isinstance(self.context, str):
             return os.path.join(self.context, 'Dockerfile')
         return None
 
@@ -678,12 +678,12 @@ class Image(manof.Target):
         d = super(Image, self).to_dict()
         for idx, item in enumerate(d['volumes']):
             if issubclass(type(item), dict):
-                volume = item.keys()[0]
+                volume = list(item.keys())[0]
                 if self._classname_is_subclass(volume, manof.Volume):
 
                     # instantiate
                     named_volume = volume(self._logger, self._args)
-                    d['volumes'][idx] = {named_volume.volume_name: item.values()[0]}
+                    d['volumes'][idx] = {named_volume.volume_name: list(item.values())}
         return d
 
     def _update_env_override(self):
@@ -693,7 +693,7 @@ class Image(manof.Target):
         env = self.env
         for idx, envvar in enumerate(env):
             if isinstance(envvar, dict):
-                envvar = envvar.keys()[0]
+                envvar = list(envvar.keys())[0]
             argument = self._to_argument(envvar, hyphenate=False, arg_prefix=False)
 
             if argument in self._args:
@@ -740,7 +740,7 @@ class Image(manof.Target):
     def _delete_all_named_volumes(self):
         self._logger.debug('Removing named-volumes')
         for volume in self.volumes:
-            host_path, container_path = volume.items()[0]
+            host_path, container_path = list(volume.items())[0]
             if self._classname_is_subclass(host_path, manof.NamedVolume):
 
                 # instantiate

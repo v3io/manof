@@ -1,4 +1,3 @@
-SYSTEM_PYTHON = python2.7
 VENV_PYTHON = ./venv/bin/python
 TESTER = ./venv/bin/nosetests
 LINTER = ./venv/bin/flake8
@@ -27,6 +26,14 @@ test-integ: venv
 install: venv
 	@echo Installed
 
+.PHONY: install-ci
+install-ci: install-venv install
+
 venv:
-	$(SYSTEM_PYTHON) ./install --dev
+	python ./install --dev
 	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
+
+.PHONY: install-venv
+install-venv:
+	python -m pip install --upgrade pip
+	python -m pip install virtualenv

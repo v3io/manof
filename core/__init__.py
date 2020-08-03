@@ -1,14 +1,9 @@
 import argparse
 import sys
-import imp
 import inspect
 import inflection
-import simplejson
 import os
-
-import pygments
-import pygments.formatters
-import pygments.lexers
+import importlib.machinery
 
 from twisted.internet import defer
 
@@ -109,7 +104,7 @@ class Manof(object):
 
     @defer.inlineCallbacks
     def update(self):
-        yield self._update_manager.update()
+        yield defer.ensureDeferred(self._update_manager.update())
 
     @defer.inlineCallbacks
     def serialize(self):
@@ -121,15 +116,7 @@ class Manof(object):
             target_dict = yield target.to_dict()
             targets.append(target_dict)
 
-        formatted_json = simplejson.dumps(targets, indent=2)
-        if sys.stdout.isatty():
-            colorful_json = pygments.highlight(formatted_json,
-                                               pygments.lexers.JsonLexer(),
-                                               pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
-
-            print colorful_json
-        else:
-            print formatted_json
+        manof.utils.pprint_json(targets)
 
     @defer.inlineCallbacks
     def _run_command_on_target_tree(self, command_name):
@@ -196,7 +183,7 @@ class Manof(object):
 
         # start by loading the manofest module
         self._logger.debug('Loading manofest', manofest_path=manofest_path)
-        manofest_module = imp.load_source('manofest', manofest_path)
+        manofest_module = self._load_manofest_module(manofest_path)
 
         # normalize to cls names
         excluded_targets = self._normalize_target_names_to_cls_names(manofest_module,
@@ -233,6 +220,12 @@ class Manof(object):
                 target_instances.append(target_instance)
 
         return target_instances
+
+    def _load_manofest_module(self, manofest_path):
+        manofest_module = importlib.machinery.SourceFileLoader(
+            'manofest', manofest_path
+        ).load_module()
+        return manofest_module
 
     def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names, skip_missing=False):
 

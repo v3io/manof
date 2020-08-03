@@ -4,17 +4,16 @@ import textwrap
 import simplejson
 
 import colorama
-import pygments
 import pygments.formatters
 import pygments.lexers
 
-import helpers
+import clients.logging.formatter.helpers as helpers
 
 
 class HumanReadableFormatter(logging.Formatter):
 
     def __init__(self, enable_colors, *args, **kwargs):
-        super(logging.Formatter, self).__init__(*args, **kwargs)
+        super(HumanReadableFormatter, self).__init__(*args, **kwargs)
         self._enable_colors = enable_colors
 
     # Maps severity to its letter representation
@@ -100,7 +99,7 @@ class HumanReadableFormatter(logging.Formatter):
         content_indent = '   '
         wrap_width = 80
 
-        for var_name, var_value in vars_dict.iteritems():
+        for var_name, var_value in vars_dict.items():
 
             if isinstance(var_value, dict):
                 long_values.append((var_name, simplejson.dumps(var_value,
@@ -136,9 +135,6 @@ class HumanReadableFormatter(logging.Formatter):
             for lv_name, lv_value in long_values:
                 values_str += '{{{0}:\n{1}}}\n'.format(helpers.JsonFormatter.format_to_json_str(lv_name),
                                                        lv_value.rstrip('\n'))
-
-        colorized_output = pygments.highlight(values_str,
-                                              pygments.lexers.JsonLexer(),
-                                              pygments.formatters.TerminalTrueColorFormatter(style='paraiso-dark'))
-
-        return colorized_output
+        json_lexer = pygments.lexers.get_lexer_by_name('Json')
+        formatter = pygments.formatters.get_formatter_by_name('terminal16m', style='paraiso-dark')
+        return pygments.highlight(values_str, json_lexer, formatter)

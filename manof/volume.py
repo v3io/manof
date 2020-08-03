@@ -54,11 +54,11 @@ class NamedVolume(Volume):
 
         creation_args = []
         if len(self.labels):
-            for k, v in self.labels.iteritems():
+            for k, v in self.labels.items():
                 creation_args.append('--label {0}={1}'.format(k, v))
 
         if len(self.options):
-            for k, v in self.options.iteritems():
+            for k, v in self.options.items():
                 creation_args.append('--opt {0}={1}'.format(k, v))
 
         command = 'docker volume create {0} --driver={1} --name={2}'.format(' '.join(creation_args),

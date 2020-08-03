@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -53,17 +53,17 @@ def main():
         # (from a local dir if it exists)
         # "python -m pip install" instead of "pip install" handles a pip
         # issue where it fails in a long-named dir
-        run('virtualenv venv && source venv/bin/activate && '
+        run('virtualenv --python=python3 venv && '
+            'source venv/bin/activate && '
             'python -m pip install {0} incremental && '.format(local_pip_packages) +
-            'python -m pip install {0} -r {1}'.format(
-                local_pip_packages, requirements_file))
+            'python -m pip install {0} -r {1}'.format(local_pip_packages, requirements_file))
 
         if not args.no_link:
             _create_sym_link()
     except subprocess.CalledProcessError as e:
         retval = e.returncode
     else:
-        print 'Installation complete. Enjoy your manof!'
+        print('Installation complete. Enjoy your manof!')
 
     sys.exit(retval)
 
