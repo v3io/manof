@@ -683,7 +683,7 @@ class Image(manof.Target):
 
                     # instantiate
                     named_volume = volume(self._logger, self._args)
-                    d['volumes'][idx] = {named_volume.volume_name: list(item.values())}
+                    d['volumes'][idx] = {named_volume.volume_name: list(item.values())[0]}
         return d
 
     def _update_env_override(self):
