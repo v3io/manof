@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-import clients.logging.formatter.helpers as helpers
+import clients.logging.formatter.helpers
 
 
 class FilebeatJsonFormatter(logging.Formatter):
@@ -35,4 +35,4 @@ class FilebeatJsonFormatter(logging.Formatter):
             'lang': 'py'
         }
 
-        return helpers.JsonFormatter.format_to_json_str(output)
+        return clients.logging.formatter.helpers.JsonFormatter.format_to_json_str(output)

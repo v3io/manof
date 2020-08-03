@@ -136,7 +136,5 @@ class HumanReadableFormatter(logging.Formatter):
                 values_str += '{{{0}:\n{1}}}\n'.format(helpers.JsonFormatter.format_to_json_str(lv_name),
                                                        lv_value.rstrip('\n'))
         json_lexer = pygments.lexers.get_lexer_by_name('Json')
-        formatter = pygments.formatters.get_formatter_by_name(
-            'terminal16m', style='paraiso-dark'
-        )
+        formatter = pygments.formatters.get_formatter_by_name('terminal16m', style='paraiso-dark')
         return pygments.highlight(values_str, json_lexer, formatter)

@@ -6,9 +6,9 @@ import sys
 import colorama
 from twisted.python.log import addObserver
 
-import clients.logging.formatter.human_readable as human_readable_formatter
-import clients.logging.formatter.json as json_formatter
-import clients.logging.formatter.helpers as helpers
+from clients.logging.formatter import helpers
+import clients.logging.formatter.human_readable
+import clients.logging.formatter.json
 
 
 class Record(logging.LogRecord):
@@ -135,7 +135,8 @@ class Client(object):
                 enable_colors = sys.stdout.isatty()
 
             human_stdout_handler = logging.StreamHandler(sys.__stdout__)
-            human_stdout_handler.setFormatter(human_readable_formatter.HumanReadableFormatter(enable_colors))
+            human_stdout_handler.setFormatter(clients.logging.formatter.human_readable
+                                              .HumanReadableFormatter(enable_colors))
             human_stdout_handler.setLevel(helpers.Severity.get_level_by_string(initial_console_severity))
             self.logger.addHandler(human_stdout_handler)
 
@@ -176,7 +177,7 @@ class Client(object):
                                                                          maxBytes=max_log_size_mb * 1024 * 1024,
                                                                          backupCount=max_num_log_files)
 
-            rotating_file_handler.setFormatter(json_formatter.FilebeatJsonFormatter())
+            rotating_file_handler.setFormatter(clients.logging.formatter.json.FilebeatJsonFormatter())
             rotating_file_handler.setLevel(helpers.Severity.get_level_by_string(initial_file_severity))
             self.logger.addHandler(rotating_file_handler)
 

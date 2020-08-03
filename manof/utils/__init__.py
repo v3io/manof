@@ -60,28 +60,28 @@ class CommandFailedError(Exception):
         return self._err
 
 
-async def git_pull(logger, path):
+def git_pull(logger, path):
     logger.debug('Pulling', **locals())
-    return await shell_run(logger, 'git pull', cwd=path)
+    return shell_run(logger, 'git pull', cwd=path)
 
 
-async def shell_run(logger, command, cwd=None, quiet=False, env=None):
+def shell_run(logger, command, cwd=None, quiet=False, env=None):
     logger.debug('Running command', **locals())
 
     # combine commands if list
     if isinstance(command, list):
         command = ' && '.join(command)
 
-    return await defer.ensureDeferred(execute(command, cwd, quiet, env=env, logger=logger))
+    return execute(command, cwd, quiet, env=env, logger=logger)
 
 
-async def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
+def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
     logger.debug('Ensuring pip requirements exist', **locals())
 
-    return await venv_run(logger, venv_path, 'pip install -r {0}'.format(requirement_file_path))
+    return venv_run(logger, venv_path, 'pip install -r {0}'.format(requirement_file_path))
 
 
-async def venv_run(logger, venv_path, command, cwd=None, quiet=False):
+def venv_run(logger, venv_path, command, cwd=None, quiet=False):
     logger.debug('Running command in virtualenv', **locals())
 
     commands = [
@@ -90,7 +90,7 @@ async def venv_run(logger, venv_path, command, cwd=None, quiet=False):
         'deactivate'
     ]
 
-    return await shell_run(logger, commands, cwd, quiet)
+    return shell_run(logger, commands, cwd, quiet)
 
 
 def getProcessOutputAndValue(executable, args=(), env={}, path=None,

@@ -23,12 +23,9 @@ try:
 except Exception as exc:
 
     # by default: save us the traceback
-    # DEV NOTE: if you need to debug tracer, you might want to:
+    # DEV NOTE: if you need to debug manof, you might want to:
     # - uncomment this
     # - print the full CalledProcessError
     # traceback.print_exc()
-
-    if not isinstance(exc, subprocess.CalledProcessError):
-        print(exc)
 
     sys.exit(1)

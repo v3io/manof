@@ -26,12 +26,12 @@ test-integ: venv
 install: venv
 	@echo Installed
 
+.PHONY: install-ci
+install-ci: install-venv install
+
 venv:
 	python ./install --dev
 	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
-
-.PHONY: install-ci
-install-ci: install-venv install
 
 .PHONY: install-venv
 install-venv:
