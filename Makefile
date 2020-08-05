@@ -28,11 +28,11 @@ test: test-unit test-integ
 
 .PHONY: test-unit
 test-unit: venv
-	$(VENV_PYTHON) -m nosetests tests/unit
+	$(VENV_PYTHON) -m nose tests/unit
 
 .PHONY: test-integ
 test-integ: venv
-	$(VENV_PYTHON) -m nosetests tests/integration/cases/
+	$(VENV_PYTHON) -m nose tests/integration/cases/
 
 .PHONY: install
 install: venv
