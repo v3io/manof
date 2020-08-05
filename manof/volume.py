@@ -32,7 +32,6 @@ class Volume(manof.Target):
 
 
 class NamedVolume(Volume):
-
     def __init__(self, *args, **kwargs):
         super(NamedVolume, self).__init__(*args, **kwargs)
         self._lock = defer.DeferredLock()
@@ -61,15 +60,19 @@ class NamedVolume(Volume):
             for k, v in self.options.items():
                 creation_args.append('--opt {0}={1}'.format(k, v))
 
-        command = 'docker volume create {0} --driver={1} --name={2}'.format(' '.join(creation_args),
-                                                                            self.driver,
-                                                                            self.volume_name)
+        command = 'docker volume create {0} --driver={1} --name={2}'.format(
+            ' '.join(creation_args), self.driver, self.volume_name
+        )
         # don't count on idempotency (labels):
         exists = yield self.exists()
         if exists:
-            self._logger.debug('Named volume exists. Doing nothing.', named_volume=self.volume_name)
+            self._logger.debug(
+                'Named volume exists. Doing nothing.', named_volume=self.volume_name
+            )
         else:
-            self._logger.debug('Named volume doesn\'t exist. Creating.', named_volume=self.volume_name)
+            self._logger.debug(
+                'Named volume doesn\'t exist. Creating.', named_volume=self.volume_name
+            )
             yield self._run_command(command)
 
     def run(self):

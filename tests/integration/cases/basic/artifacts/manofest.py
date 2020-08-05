@@ -6,7 +6,6 @@ class LoadTestImage(manof.Image):
 
 
 class PullTestImage(manof.Image):
-
     @property
     def image_name(self):
         return 'busybox:1'

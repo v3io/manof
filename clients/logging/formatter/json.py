@@ -5,7 +5,6 @@ import clients.logging.formatter.helpers
 
 
 class FilebeatJsonFormatter(logging.Formatter):
-
     def format(self, record):
 
         # handle non-json-parsable vars:
@@ -32,7 +31,9 @@ class FilebeatJsonFormatter(logging.Formatter):
             'what': what,
             'more': more,
             'ctx': record.vars.get('ctx', ''),
-            'lang': 'py'
+            'lang': 'py',
         }
 
-        return clients.logging.formatter.helpers.JsonFormatter.format_to_json_str(output)
+        return clients.logging.formatter.helpers.JsonFormatter.format_to_json_str(
+            output
+        )

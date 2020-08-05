@@ -11,7 +11,9 @@ import pygments.formatters
 
 
 class CommandFailedError(Exception):
-    def __init__(self, command=None, code=None, cwd=None, out=None, err=None, signal=None):
+    def __init__(
+        self, command=None, code=None, cwd=None, out=None, err=None, signal=None
+    ):
         """
         Logs a failed executed command to ziggy's logfile, and raises a RepoError.
         :param command: the command line that was run
@@ -78,7 +80,9 @@ def shell_run(logger, command, cwd=None, quiet=False, env=None):
 def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
     logger.debug('Ensuring pip requirements exist', **locals())
 
-    return venv_run(logger, venv_path, 'pip install -r {0}'.format(requirement_file_path))
+    return venv_run(
+        logger, venv_path, 'pip install -r {0}'.format(requirement_file_path)
+    )
 
 
 def venv_run(logger, venv_path, command, cwd=None, quiet=False):
@@ -87,22 +91,22 @@ def venv_run(logger, venv_path, command, cwd=None, quiet=False):
     commands = [
         'source {0}'.format(os.path.join(venv_path, 'bin', 'activate')),
         command,
-        'deactivate'
+        'deactivate',
     ]
 
     return shell_run(logger, commands, cwd, quiet)
 
 
-def getProcessOutputAndValue(executable, args=(), env={}, path=None,
-                             reactor=None):
+def getProcessOutputAndValue(executable, args=(), env={}, path=None, reactor=None):
     """
     Spawn a process and returns a Deferred that will be called back with
     its output (from stdout and stderr) and it's exit code as (out, err, code)
     If a signal is raised, the Deferred will errback with the stdout and
     stderr up to that point, along with the signal, as (out, err, signalNum)
     """
-    return _callProtocolWithDeferred(_EverythingGetter, executable, args, env, path,
-                                     reactor)
+    return _callProtocolWithDeferred(
+        _EverythingGetter, executable, args, env, path, reactor
+    )
 
 
 def _callProtocolWithDeferred(protocol, executable, args, env, path, reactor=None):
@@ -116,7 +120,6 @@ def _callProtocolWithDeferred(protocol, executable, args, env, path, reactor=Non
 
 
 class _EverythingGetter(protocol.ProcessProtocol):
-
     def __init__(self, deferred):
         self.deferred = deferred
         self.outBuf = io.BytesIO()
@@ -166,19 +169,27 @@ def execute(command, cwd, quiet, env=None, logger=None):
         _err = failure.value[1]
         _signal = failure.value[2]
         if logger:
-            logger.warn('Command killed by signal', command=command, cwd=cwd, out=_out, err=_err, signal=_signal)
+            logger.warn(
+                'Command killed by signal',
+                command=command,
+                cwd=cwd,
+                out=_out,
+                err=_err,
+                signal=_signal,
+            )
 
         if not quiet:
             if logger:
                 logger.warn('Command failed')
-            raise CommandFailedError(command=command, cwd=cwd, out=_out, err=_err, signal=_signal)
+            raise CommandFailedError(
+                command=command, cwd=cwd, out=_out, err=_err, signal=_signal
+            )
         else:
             return _out, _err, _signal
 
-    d = getProcessOutputAndValue('/bin/bash',
-                                 args=['-c', command],
-                                 path=cwd,
-                                 env=env or os.environ)
+    d = getProcessOutputAndValue(
+        '/bin/bash', args=['-c', command], path=cwd, env=env or os.environ
+    )
 
     # errback chain is fired if a signal is raised in the process
     d.addErrback(_get_error)
@@ -188,11 +199,27 @@ def execute(command, cwd, quiet, env=None, logger=None):
     err = err.strip().decode()
     if code:
         if quiet and logger:
-            logger.debug('Command failed quietly', command=command, cwd=cwd, code_or_signal=code, err=err, out=out)
+            logger.debug(
+                'Command failed quietly',
+                command=command,
+                cwd=cwd,
+                code_or_signal=code,
+                err=err,
+                out=out,
+            )
         else:
             if logger:
-                logger.warn('Command failed', command=command, cwd=cwd, code_or_signal=code, err=err, out=out)
-            raise CommandFailedError(command=command, cwd=cwd, out=out, err=err, code=code)
+                logger.warn(
+                    'Command failed',
+                    command=command,
+                    cwd=cwd,
+                    code_or_signal=code,
+                    err=err,
+                    out=out,
+                )
+            raise CommandFailedError(
+                command=command, cwd=cwd, out=out, err=err, code=code
+            )
     else:
         if logger:
             logger.info('Command succeeded', command=command, cwd=cwd, out=out, err=err)
@@ -218,7 +245,11 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
     """
 
     def _on_operation_callback_error(failure):
-        logger.debug('Exception during operation execution', function=function.__name__, tb=failure.getBriefTraceback())
+        logger.debug(
+            'Exception during operation execution',
+            function=function.__name__,
+            tb=failure.getBriefTraceback(),
+        )
         raise failure
 
     tries = 1
@@ -233,18 +264,21 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
 
         except Exception as exc:
             last_exc = exc
-            logger.warn('Operation failed',
-                        function=function.__name__,
-                        exc=repr(exc),
-                        current_try_number=tries,
-                        max_number_of_tries=num_of_tries)
+            logger.warn(
+                'Operation failed',
+                function=function.__name__,
+                exc=repr(exc),
+                current_try_number=tries,
+                max_number_of_tries=num_of_tries,
+            )
             tries += 1
 
         else:
             defer.returnValue(result)
 
-    last_exc.message = 'Failed to execute command with given retries:\n {0}'\
-        .format(getattr(last_exc, 'message', str(last_exc)))
+    last_exc.message = 'Failed to execute command with given retries:\n {0}'.format(
+        getattr(last_exc, 'message', str(last_exc))
+    )
     raise last_exc
 
 
@@ -252,7 +286,9 @@ def pprint_json(obj: typing.Union[typing.List, typing.Dict]):
     formatted_json = simplejson.dumps(obj, indent=2)
     if sys.stdout.isatty():
         json_lexer = pygments.lexers.get_lexer_by_name('Json')
-        formatter = pygments.formatters.get_formatter_by_name('terminal16m', style='paraiso-dark')
+        formatter = pygments.formatters.get_formatter_by_name(
+            'terminal16m', style='paraiso-dark'
+        )
         colorful_json = pygments.highlight(formatted_json, json_lexer, formatter)
         print(colorful_json)
     else:

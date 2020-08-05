@@ -11,7 +11,6 @@ import clients.logging.formatter.helpers as helpers
 
 
 class HumanReadableFormatter(logging.Formatter):
-
     def __init__(self, enable_colors, *args, **kwargs):
         super(HumanReadableFormatter, self).__init__(*args, **kwargs)
         self._enable_colors = enable_colors
@@ -22,13 +21,13 @@ class HumanReadableFormatter(logging.Formatter):
         helpers.Severity.Debug: 'D',
         helpers.Severity.Info: 'I',
         helpers.Severity.Warning: 'W',
-        helpers.Severity.Error: 'E'
+        helpers.Severity.Error: 'E',
     }
 
     # Maps severity to its color representation
     _level_to_color = {
         helpers.Severity.Warning: colorama.Fore.LIGHTYELLOW_EX,
-        helpers.Severity.Error: colorama.Fore.LIGHTRED_EX
+        helpers.Severity.Error: colorama.Fore.LIGHTRED_EX,
     }
 
     def format(self, record):
@@ -49,19 +48,18 @@ class HumanReadableFormatter(logging.Formatter):
 
         output = {
             'reset_color': colorama.Fore.RESET,
-
-            'when': datetime.datetime.fromtimestamp(record.created).strftime('%d.%m.%y %H:%M:%S.%f'),
+            'when': datetime.datetime.fromtimestamp(record.created).strftime(
+                '%d.%m.%y %H:%M:%S.%f'
+            ),
             'when_color': colorama.Fore.WHITE,
-
             'who': record.name[-30:],
             'who_color': colorama.Fore.WHITE,
-
             'severity': HumanReadableFormatter._level_to_short_name[record.levelno],
-            'severity_color': HumanReadableFormatter._level_to_color.get(record.levelno, colorama.Fore.RESET),
-
+            'severity_color': HumanReadableFormatter._level_to_color.get(
+                record.levelno, colorama.Fore.RESET
+            ),
             'what': record.getMessage(),
             'what_color': _get_what_color(),
-
             'more': more,
         }
 
@@ -78,9 +76,11 @@ class HumanReadableFormatter(logging.Formatter):
             for ansi_color in [f for f in output.keys() if 'color' in f]:
                 output[ansi_color] = ''
 
-        return '{when_color}{when}{reset_color} {who_color}{who:>10}:{reset_color} ' \
-               '{severity_color}({severity}){reset_color} {what_color}{what}{reset_color} ' \
-               '{more}'.format(**output)
+        return (
+            '{when_color}{when}{reset_color} {who_color}{who:>10}:{reset_color} '
+            '{severity_color}({severity}){reset_color} {what_color}{what}{reset_color} '
+            '{more}'.format(**output)
+        )
 
     def _prettify_output(self, vars_dict):
         """
@@ -102,18 +102,25 @@ class HumanReadableFormatter(logging.Formatter):
         for var_name, var_value in vars_dict.items():
 
             if isinstance(var_value, dict):
-                long_values.append((var_name, simplejson.dumps(var_value,
-                                                               indent=4,
-                                                               cls=helpers.ObjectEncoder)))
+                long_values.append(
+                    (
+                        var_name,
+                        simplejson.dumps(
+                            var_value, indent=4, cls=helpers.ObjectEncoder
+                        ),
+                    )
+                )
 
             # if the value is a string over 40 chars long
             elif isinstance(var_value, str) and len(var_value) > 40:
-                wrapped_text = textwrap.fill('"{0}"'.format(var_value),
-                                             width=wrap_width,
-                                             break_long_words=False,
-                                             initial_indent=content_indent,
-                                             subsequent_indent=content_indent,
-                                             replace_whitespace=False)
+                wrapped_text = textwrap.fill(
+                    '"{0}"'.format(var_value),
+                    width=wrap_width,
+                    break_long_words=False,
+                    initial_indent=content_indent,
+                    subsequent_indent=content_indent,
+                    replace_whitespace=False,
+                )
 
                 long_values.append((var_name, wrapped_text))
             else:
@@ -128,13 +135,19 @@ class HumanReadableFormatter(logging.Formatter):
         # but it is surrounded by double-quotes so the coloring lexer will eat it up
         values_str = ''
         if short_values:
-            values_str = helpers.JsonFormatter.format_to_json_str({k: v for k, v in short_values})
+            values_str = helpers.JsonFormatter.format_to_json_str(
+                {k: v for k, v in short_values}
+            )
         if long_values:
             values_str += '\n'
 
             for lv_name, lv_value in long_values:
-                values_str += '{{{0}:\n{1}}}\n'.format(helpers.JsonFormatter.format_to_json_str(lv_name),
-                                                       lv_value.rstrip('\n'))
+                values_str += '{{{0}:\n{1}}}\n'.format(
+                    helpers.JsonFormatter.format_to_json_str(lv_name),
+                    lv_value.rstrip('\n'),
+                )
         json_lexer = pygments.lexers.get_lexer_by_name('Json')
-        formatter = pygments.formatters.get_formatter_by_name('terminal16m', style='paraiso-dark')
+        formatter = pygments.formatters.get_formatter_by_name(
+            'terminal16m', style='paraiso-dark'
+        )
         return pygments.highlight(values_str, json_lexer, formatter)

@@ -5,7 +5,6 @@ import tests.integration
 
 
 class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
-
     @defer.inlineCallbacks
     def test_run_and_rm(self):
         self._logger.info('Testing run command happy flow')
@@ -19,10 +18,12 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('run', [image_name])
 
         # check the image exists
-        docker_log_output, _, _ = yield manof.utils.execute('docker logs {0}'.format(image_name),
-                                                            cwd=None,
-                                                            quiet=False,
-                                                            logger=self._logger)
+        docker_log_output, _, _ = yield manof.utils.execute(
+            'docker logs {0}'.format(image_name),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )
 
         self.assertEqual(docker_log_output, image_name)
 
@@ -31,11 +32,13 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
 
         # check the container doesn't exist exists
         yield self.assertFailure(
-            manof.utils.execute('docker logs {0}'.format(image_name),
-                                cwd=None,
-                                quiet=False,
-                                logger=self._logger),
-            manof.utils.CommandFailedError
+            manof.utils.execute(
+                'docker logs {0}'.format(image_name),
+                cwd=None,
+                quiet=False,
+                logger=self._logger,
+            ),
+            manof.utils.CommandFailedError,
         )
         self._logger.debug('Last command was supposed to fail')
 
@@ -54,10 +57,12 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('provision', [image_name])
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
-                                  cwd=None,
-                                  quiet=False,
-                                  logger=self._logger)
+        yield manof.utils.execute(
+            'docker image history -Hq {0}'.format(docker_image),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )
 
     @defer.inlineCallbacks
     def test_lift_images(self):
@@ -75,16 +80,20 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         yield self._manof_command('lift', [image_name])
 
         # check the image exists
-        yield manof.utils.execute('docker image history -Hq {0}'.format(docker_image),
-                                  cwd=None,
-                                  quiet=False,
-                                  logger=self._logger)
+        yield manof.utils.execute(
+            'docker image history -Hq {0}'.format(docker_image),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )
 
         # check the image exists
-        docker_log_output, _, _ = yield manof.utils.execute('docker logs {0}'.format(image_name),
-                                                            cwd=None,
-                                                            quiet=False,
-                                                            logger=self._logger)
+        docker_log_output, _, _ = yield manof.utils.execute(
+            'docker logs {0}'.format(image_name),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )
 
         self.assertEqual(docker_log_output, image_name)
 
@@ -94,6 +103,6 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
             'manof {command} {args}'.format(command=command, args=' '.join(args)),
             cwd=self._working_dir,
             quiet=False,
-            logger=self._logger
+            logger=self._logger,
         )
         defer.returnValue((out, err, signal))

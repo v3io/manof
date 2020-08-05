@@ -2,7 +2,6 @@ import manof
 
 
 class TestImage(manof.Image):
-
     @property
     def image_name(self):
         return 'busybox:1'
