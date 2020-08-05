@@ -11,7 +11,6 @@ import manof.utils
 
 
 class Image(manof.Target):
-
     @defer.inlineCallbacks
     def provision(self):
         """
@@ -27,10 +26,9 @@ class Image(manof.Target):
 
         # if there is a context, do a build
         if self.context is not None:
-            command = 'docker build --rm {0} --tag={1} -f {2} {3}'.format(' '.join(provision_args),
-                                                                          self.image_name,
-                                                                          self.dockerfile,
-                                                                          self.context)
+            command = 'docker build --rm {0} --tag={1} -f {2} {3}'.format(
+                ' '.join(provision_args), self.image_name, self.dockerfile, self.context
+            )
 
             # if image provides a programmatic docker ignore, we need to create a temporary
             # file at the context and remove it when we're done
@@ -215,10 +213,15 @@ class Image(manof.Target):
 
         except Exception as exc:
             dangling_container_error = re.search(
-                'endpoint with name (?P<container_name>.*) already exists in network (?P<network>.*).',
-                str(exc))
+                'endpoint with name (?P<container_name>.*) already exists in network'
+                ' (?P<network>.*).',
+                str(exc),
+            )
 
-            if dangling_container_error is not None and self.force_run_with_disconnection:
+            if (
+                dangling_container_error is not None
+                and self.force_run_with_disconnection
+            ):
                 container_name = dangling_container_error.group('container_name')
                 network = dangling_container_error.group('network')
                 yield self._disconnect_container_from_network(container_name, network)
@@ -268,38 +271,50 @@ class Image(manof.Target):
     @defer.inlineCallbacks
     def push(self):
         if self.skip_push:
-            self._logger.debug('Skipping push',
-                               image_name=self.image_name,
-                               remote_image_name=self.remote_image_name)
+            self._logger.debug(
+                'Skipping push',
+                image_name=self.image_name,
+                remote_image_name=self.remote_image_name,
+            )
             defer.returnValue(None)
 
-        self._logger.debug('Pushing',
-                           image_name=self.image_name,
-                           remote_image_name=self.remote_image_name,
-                           skip_push=self.skip_push)
+        self._logger.debug(
+            'Pushing',
+            image_name=self.image_name,
+            remote_image_name=self.remote_image_name,
+            skip_push=self.skip_push,
+        )
 
         # tag and push
-        yield self._run_command([
-            'docker tag {0} {1}'.format(self.image_name, self.remote_image_name),
-            'docker push {0}'.format(self.remote_image_name)
-        ])
+        yield self._run_command(
+            [
+                'docker tag {0} {1}'.format(self.image_name, self.remote_image_name),
+                'docker push {0}'.format(self.remote_image_name),
+            ]
+        )
 
         if not self._args.no_cleanup:
-            self._logger.debug('Cleaning after push',
-                               image_name=self.image_name,
-                               remote_image_name=self.remote_image_name)
+            self._logger.debug(
+                'Cleaning after push',
+                image_name=self.image_name,
+                remote_image_name=self.remote_image_name,
+            )
             yield self._run_command('docker rmi {0}'.format(self.remote_image_name))
 
-        self.pprint_json({
-            'image_name': self.image_name,
-            'remote_image_name': self.remote_image_name,
-        })
+        self.pprint_json(
+            {
+                'image_name': self.image_name,
+                'remote_image_name': self.remote_image_name,
+            }
+        )
 
     @defer.inlineCallbacks
     def pull(self):
-        self._logger.debug('Pulling',
-                           remote_image_name=self.remote_image_name,
-                           tag_local=self._args.tag_local)
+        self._logger.debug(
+            'Pulling',
+            remote_image_name=self.remote_image_name,
+            tag_local=self._args.tag_local,
+        )
 
         # first, pull the image
         yield self._run_command('docker pull {0}'.format(self.remote_image_name))
@@ -683,7 +698,9 @@ class Image(manof.Target):
 
                     # instantiate
                     named_volume = volume(self._logger, self._args)
-                    d['volumes'][idx] = {named_volume.volume_name: list(item.values())[0]}
+                    d['volumes'][idx] = {
+                        named_volume.volume_name: list(item.values())[0]
+                    }
         return d
 
     def _update_env_override(self):
@@ -699,7 +716,9 @@ class Image(manof.Target):
             if argument in self._args:
                 value = vars(self._args)[argument]
                 if self.allow_env_args and value:
-                    self._logger.debug('Replacing env var from argument', envvar=envvar, value=value)
+                    self._logger.debug(
+                        'Replacing env var from argument', envvar=envvar, value=value
+                    )
                     env[idx] = {envvar: value}
 
         return env
@@ -709,16 +728,22 @@ class Image(manof.Target):
         repository = self._determine_repository()
         if repository == 'docker.io':
             # docker.io is omitted by default
-            self._logger.debug('Image is already tagged with its local repository',
-                               repository=repository)
+            self._logger.debug(
+                'Image is already tagged with its local repository',
+                repository=repository,
+            )
             defer.returnValue(None)
 
-        self._logger.debug('Tagging image with local repository',
-                           repository=repository,
-                           image_name=self.image_name,
-                           remote_image_name=self.remote_image_name)
+        self._logger.debug(
+            'Tagging image with local repository',
+            repository=repository,
+            image_name=self.image_name,
+            remote_image_name=self.remote_image_name,
+        )
 
-        yield self._run_command('docker tag {0} {1}'.format(self.remote_image_name, self.image_name))
+        yield self._run_command(
+            'docker tag {0} {1}'.format(self.remote_image_name, self.image_name)
+        )
 
         # Clean repository from image name if provided
         if self.image_name != self.remote_image_name:
@@ -774,12 +799,16 @@ class Image(manof.Target):
     def _determine_repository(self):
 
         # determine repository, prioritize cli repository arg
-        repository = self._args.repository if self._args.repository else self.default_repository
+        repository = (
+            self._args.repository if self._args.repository else self.default_repository
+        )
 
         # no repository was determined, use docker's default
         if repository is None:
             # TODO: Remove once "default_repository" is set to 'docker.io'
-            self._logger.debug('No remote repository was given, setting to \"docker.io\"')
+            self._logger.debug(
+                'No remote repository was given, setting to \"docker.io\"'
+            )
             repository = 'docker.io'
 
         return repository
@@ -787,5 +816,7 @@ class Image(manof.Target):
     @defer.inlineCallbacks
     def _disconnect_container_from_network(self, container_name, network):
         self._logger.debug('Disconnecting container from net')
-        yield self._run_command('docker network disconnect -f {0} {1}'.format(network, container_name),
-                                raise_on_error=False)
+        yield self._run_command(
+            'docker network disconnect -f {0} {1}'.format(network, container_name),
+            raise_on_error=False,
+        )

@@ -13,7 +13,6 @@ import core.update_manager
 
 
 class RootTarget(manof.Target):
-
     @property
     def name(self):
 
@@ -22,7 +21,6 @@ class RootTarget(manof.Target):
 
 
 class Manof(object):
-
     def __init__(self, logger, args, known_arg_options):
         self._logger = logger
         self._args = self._ungreedify_targets(args, known_arg_options)
@@ -32,10 +30,14 @@ class Manof(object):
             self._logger.setLevel(0)
 
         # Set number of tries according to args (only effects pull and push)
-        self._number_of_tries = self._args.num_retries + 1 if self._args.command in ['pull', 'push'] else 1
+        self._number_of_tries = (
+            self._args.num_retries + 1 if self._args.command in ['pull', 'push'] else 1
+        )
 
         manof_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        self._update_manager = core.update_manager.UpdateManager(self._logger, manof_path)
+        self._update_manager = core.update_manager.UpdateManager(
+            self._logger, manof_path
+        )
         self._alias_target_map = {}
 
     def _ungreedify_targets(self, parsed_args, known_arg_options):
@@ -53,13 +55,19 @@ class Manof(object):
                 continue
 
             value = args[idx + 1]
-            if arg.startswith('-') and not value.startswith('-') \
-               and '=' not in arg \
-               and arg not in known_arg_options:
+            if (
+                arg.startswith('-')
+                and not value.startswith('-')
+                and '=' not in arg
+                and arg not in known_arg_options
+            ):
                 if value in parsed_args.targets:
                     parsed_args.targets.remove(value)
                 if not len(parsed_args.targets):
-                    raise IOError('No targets arguments found. You must have entered a bad argument combination')
+                    raise IOError(
+                        'No targets arguments found. You must have entered a bad'
+                        ' argument combination'
+                    )
 
         return parsed_args
 
@@ -68,10 +76,12 @@ class Manof(object):
 
         # run the command
         def _log_tracebacks(failure):
-            self._logger.error('Unhandled exception running command',
-                               command=self._args.command,
-                               error=failure.getErrorMessage(),
-                               traceback=failure.getTraceback())
+            self._logger.error(
+                'Unhandled exception running command',
+                command=self._args.command,
+                error=failure.getErrorMessage(),
+                traceback=failure.getTraceback(),
+            )
             raise failure
 
         # get deferred and attach errback so we have tracebacks
@@ -121,7 +131,9 @@ class Manof(object):
     @defer.inlineCallbacks
     def _run_command_on_target_tree(self, command_name):
         target_root = self._load_manofest()
-        number_of_parallel_commands = 1 if self._args.parallel is None else self._args.parallel
+        number_of_parallel_commands = (
+            1 if self._args.parallel is None else self._args.parallel
+        )
         semaphore = defer.DeferredSemaphore(number_of_parallel_commands)
         yield self._run_command_on_target_children(target_root, command_name, semaphore)
 
@@ -129,7 +141,9 @@ class Manof(object):
     def _run_command_on_target_node_and_children(self, target, command_name, semaphore):
         yield semaphore.acquire()
         try:
-            yield manof.utils.retry_until_successful(self._number_of_tries, self._logger, getattr(target, command_name))
+            yield manof.utils.retry_until_successful(
+                self._number_of_tries, self._logger, getattr(target, command_name)
+            )
         except Exception as e:
             semaphore.release()
             raise e
@@ -138,8 +152,12 @@ class Manof(object):
         yield self._run_command_on_target_children(target, command_name, semaphore)
 
     def _run_command_on_target_children(self, target, command_name, semaphore):
-        defer_list = [self._run_command_on_target_node_and_children(dependent_target, command_name, semaphore)
-                      for dependent_target in target.dependent_targets]
+        defer_list = [
+            self._run_command_on_target_node_and_children(
+                dependent_target, command_name, semaphore
+            )
+            for dependent_target in target.dependent_targets
+        ]
 
         return defer.DeferredList(defer_list, fireOnOneErrback=True)
 
@@ -179,24 +197,30 @@ class Manof(object):
 
     def _load_targets_from_manofest(self, manofest_path):
         target_instances = []
-        excluded_targets = self._args.exclude.split(',') if 'exclude' in self._args else []
+        excluded_targets = (
+            self._args.exclude.split(',') if 'exclude' in self._args else []
+        )
 
         # start by loading the manofest module
         self._logger.debug('Loading manofest', manofest_path=manofest_path)
         manofest_module = self._load_manofest_module(manofest_path)
 
         # normalize to cls names
-        excluded_targets = self._normalize_target_names_to_cls_names(manofest_module,
-                                                                     excluded_targets,
-                                                                     skip_missing=True)
-        targets = self._normalize_target_names_to_cls_names(manofest_module, self._args.targets)
+        excluded_targets = self._normalize_target_names_to_cls_names(
+            manofest_module, excluded_targets, skip_missing=True
+        )
+        targets = self._normalize_target_names_to_cls_names(
+            manofest_module, self._args.targets
+        )
 
         # create instances of the targets passed in the args
         for target in targets:
             if target in excluded_targets:
-                self._logger.debug('Exclusion requested. Skipping target',
-                                   target=target,
-                                   excluded_targets=excluded_targets)
+                self._logger.debug(
+                    'Exclusion requested. Skipping target',
+                    target=target,
+                    excluded_targets=excluded_targets,
+                )
                 continue
 
             target_instance = self._create_target_by_cls_name(manofest_module, target)
@@ -204,16 +228,22 @@ class Manof(object):
             # if the target is a group, iterate over the members and create a target instance for each
             # member of the group
             if isinstance(target_instance, manof.Group):
-                members = self._normalize_target_names_to_cls_names(manofest_module, target_instance.members)
+                members = self._normalize_target_names_to_cls_names(
+                    manofest_module, target_instance.members
+                )
                 for member in members:
                     if member in excluded_targets:
-                        self._logger.debug('Exclusion requested. Skipping target',
-                                           member=member,
-                                           excluded_targets=excluded_targets)
+                        self._logger.debug(
+                            'Exclusion requested. Skipping target',
+                            member=member,
+                            excluded_targets=excluded_targets,
+                        )
                         continue
 
                     # instantiate the member of the group
-                    target_instances.append(self._create_target_by_cls_name(manofest_module, member))
+                    target_instances.append(
+                        self._create_target_by_cls_name(manofest_module, member)
+                    )
             else:
 
                 # not a group - create the target
@@ -227,7 +257,9 @@ class Manof(object):
         ).load_module()
         return manofest_module
 
-    def _normalize_target_names_to_cls_names(self, manofest_module, raw_target_names, skip_missing=False):
+    def _normalize_target_names_to_cls_names(
+        self, manofest_module, raw_target_names, skip_missing=False
+    ):
 
         # load aliases
         self._populate_alias_target_map(manofest_module)
@@ -254,9 +286,13 @@ class Manof(object):
                 continue
 
             if skip_missing:
-                self._logger.info('Failed to find target in manofest module. Skipping', target=target)
+                self._logger.info(
+                    'Failed to find target in manofest module. Skipping', target=target
+                )
             else:
-                raise RuntimeError('Failed to find target in manofest module: {0}'.format(target))
+                raise RuntimeError(
+                    'Failed to find target in manofest module: {0}'.format(target)
+                )
 
         return cls_names
 
@@ -272,6 +308,7 @@ class Manof(object):
         """
         Build: {alias / cls name => cls_name}
         """
+
         def is_manof_target_cls(member):
             if inspect.isclass(member) and issubclass(member, manof.Target):
                 return True
@@ -281,8 +318,14 @@ class Manof(object):
         if len(self._alias_target_map):
             return
 
-        for target_cls_name, target_cls in inspect.getmembers(manofest_module, is_manof_target_cls):
-            alias = target_cls.alias() if target_cls.alias() is not None else target_cls_name
+        for target_cls_name, target_cls in inspect.getmembers(
+            manofest_module, is_manof_target_cls
+        ):
+            alias = (
+                target_cls.alias()
+                if target_cls.alias() is not None
+                else target_cls_name
+            )
             self._alias_target_map[alias] = target_cls_name
 
     def _target_tree_from_target_list(self, targets):
@@ -305,6 +348,7 @@ class Manof(object):
 
         since e was not passed, f will depend on root. If e were passed, there would be e -> f under root
         """
+
         def _get_target_by_name(target_name):
             for target in targets:
                 if target.__class__.__name__ == target_name:
@@ -339,13 +383,18 @@ class Manof(object):
             if dependent_target.dependent_targets:
 
                 # iterate through the dependent targets of the dependent target
-                for dependent_target in self._get_next_dependent_target(dependent_target):
+                for dependent_target in self._get_next_dependent_target(
+                    dependent_target
+                ):
                     yield dependent_target
 
     @staticmethod
     def _enforce_no_store_true_args(parser):
         for action in parser._actions:
             if isinstance(action, argparse._StoreTrueAction):
-                error_msg = 'manofest.py doens\'t support argument registration of type=\'store_true\' \n' + \
-                            'offending action={0}'.format(action)
+                error_msg = (
+                    'manofest.py doens\'t support argument registration of'
+                    ' type=\'store_true\' \n'
+                    + 'offending action={0}'.format(action)
+                )
                 raise SyntaxError(error_msg)

@@ -18,7 +18,6 @@ class Severity(object):
         'info': Info,
         'warn': Warning,
         'warning': Warning,
-
         # Allow abbreviations
         # Also provides backwards compatibility with log-console/file-severity syntax
         'V': Verbose,
@@ -34,7 +33,6 @@ class Severity(object):
 
 
 class ObjectEncoder(simplejson.JSONEncoder):
-
     def default(self, obj):
         try:
             return obj.__log__()
@@ -43,7 +41,6 @@ class ObjectEncoder(simplejson.JSONEncoder):
 
 
 class JsonFormatter(logging.Formatter):
-
     @staticmethod
     def format_to_json_str(params):
         try:
@@ -53,14 +50,16 @@ class JsonFormatter(logging.Formatter):
         except Exception:
 
             # this is the widest complementary encoding found
-            return simplejson.dumps(params, cls=ObjectEncoder, encoding='raw_unicode_escape')
+            return simplejson.dumps(
+                params, cls=ObjectEncoder, encoding='raw_unicode_escape'
+            )
 
     def format(self, record):
         params = {
             'datetime': self.formatTime(record, self.datefmt),
             'name': record.name,
             'level': record.levelname.lower(),
-            'message': record.getMessage()
+            'message': record.getMessage(),
         }
 
         params.update(record.vars)

@@ -11,7 +11,6 @@ logger = clients.logging.TestingClient('unit_test').logger
 
 
 class ManofUnitTestCase(unittest.TestCase):
-
     def setUp(self):
         self._logger = logger
         self._logger.info('Setting up unit test')
@@ -29,10 +28,8 @@ class ManofUnitTestCase(unittest.TestCase):
                 'dockerignore': None,
                 'context': None,
             },
-            image_args={
-                'repository': None,
-                'tag_local': None,
-            })
+            image_args={'repository': None, 'tag_local': None},
+        )
 
         yield manof.Image.lift(image)
 
@@ -49,10 +46,8 @@ class ManofUnitTestCase(unittest.TestCase):
                 'dockerignore': None,
                 'context': None,
             },
-            image_args={
-                'repository': None,
-                'tag_local': None,
-            })
+            image_args={'repository': None, 'tag_local': None},
+        )
 
         self._logger.debug('Calling image provisioning')
         yield manof.Image.provision(image)
@@ -68,7 +63,7 @@ class ManofUnitTestCase(unittest.TestCase):
                 'image_name': 'test_image',
                 'dockerignore': None,
                 'context': 'test_image',
-                'dockerfile': 'test_image/Dockerfile'
+                'dockerfile': 'test_image/Dockerfile',
             }
         )
 
@@ -79,7 +74,10 @@ class ManofUnitTestCase(unittest.TestCase):
         self.assertFalse(image.pull.called)
 
         command = image._run_command.call_args.args[0]
-        self._logger.debug('Checking _run_command method has been called with a docker build command', command=command)
+        self._logger.debug(
+            'Checking _run_command method has been called with a docker build command',
+            command=command,
+        )
         self.assertSubstring('docker build', command)
 
     def _create_manof_image(self, image_properties, image_args=None):
@@ -98,7 +96,9 @@ class ManofUnitTestCase(unittest.TestCase):
         image._manofest_path = os.path.abspath(image._args.manofest_path)
         image._manofest_dir = os.path.dirname(image._manofest_path)
 
-        self._logger.debug('Setting mocked image properties', properties=image_properties)
+        self._logger.debug(
+            'Setting mocked image properties', properties=image_properties
+        )
         for property_name, property_val in image_properties.items():
             setattr(image, property_name, property_val)
 

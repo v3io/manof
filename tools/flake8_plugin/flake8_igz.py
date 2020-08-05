@@ -10,7 +10,6 @@ class Constants(object):
 
 
 class Utils(object):
-
     @staticmethod
     def get_string_tokens(tokens):
         for tid, lexeme, start, end, _ in tokens:
@@ -49,7 +48,9 @@ def ctx_log_non_string_first_param(logical_line, tokens):
                 first_param_token = tokens[idx + 2]
 
                 if first_param_token[0] == token.STRING:
-                    yield first_param_token[2], 'I104 ctx.log.{0} call with string as first param'.format(lexeme)
+                    yield first_param_token[
+                        2
+                    ], 'I104 ctx.log.{0} call with string as first param'.format(lexeme)
 
 
 def class_name_camel_case(logical_line, tokens):
@@ -60,7 +61,11 @@ def class_name_camel_case(logical_line, tokens):
                 camelized = inflection.camelize(class_name_token[1], True)
 
                 if class_name_token[1] != camelized:
-                    yield class_name_token[2], 'I105 class name not camel case. (suggestion: {0})'.format(camelized)
+                    yield class_name_token[
+                        2
+                    ], 'I105 class name not camel case. (suggestion: {0})'.format(
+                        camelized
+                    )
 
 
 def logger_forbid_passing_self(logical_line, tokens):
@@ -71,5 +76,12 @@ def logger_forbid_passing_self(logical_line, tokens):
                 # plus one for the ( parentheses, plus one for the first param
                 first_param_token = tokens[idx + 2]
 
-                if first_param_token[1] == 'self' and first_param_token[0] != token.STRING:
-                    yield first_param_token[2], 'I106 self._logger.{0} call with self as first param'.format(lexeme)
+                if (
+                    first_param_token[1] == 'self'
+                    and first_param_token[0] != token.STRING
+                ):
+                    yield first_param_token[
+                        2
+                    ], 'I106 self._logger.{0} call with self as first param'.format(
+                        lexeme
+                    )
