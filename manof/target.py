@@ -88,7 +88,7 @@ class Target(object):
 
     def pprint_json(self, some_object):
         self._logger.debug('Calling Target.pprint_json is deprecated, use `manof.utils.pprint_json` instead')
-        return manof.utils.pprint_json(some_object)
+        return manof.utils.pprint_json(some_object, self._args.output_colors)
 
     @property
     def env(self):

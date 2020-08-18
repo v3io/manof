@@ -116,7 +116,7 @@ class Manof(object):
             target_dict = yield target.to_dict()
             targets.append(target_dict)
 
-        manof.utils.pprint_json(targets)
+        manof.utils.pprint_json(targets, self._args.output_colors)
 
     @defer.inlineCallbacks
     def _run_command_on_target_tree(self, command_name):

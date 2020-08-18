@@ -5,6 +5,7 @@ from twisted.internet import reactor
 
 import core
 import clients.logging
+import manof.utils
 
 
 def _run(args, known_arg_options):
@@ -67,6 +68,13 @@ def _register_arguments(parser):
         '-dr', '--dry-run',
         help='Don\'t actually run any commands, just log',
         action='store_true')
+
+    parser.add_argument(
+        '--output-colors',
+        help='CLI friendly color control for command output (for logs, see --log-colors). '
+             'default is on (color when stdout+tty). You can also force always/off.',
+        choices=manof.utils.OutputColorsModes.all(),
+        default=manof.utils.OutputColorsModes.on)
 
     parser.add_argument('-p', '--parallel', action='store', help='Set how many commands to run in parallel', type=int)
 

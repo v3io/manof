@@ -60,6 +60,16 @@ class CommandFailedError(Exception):
         return self._err
 
 
+class OutputColorsModes(object):
+    on = 'on'
+    off = 'off'
+    always = 'always'
+
+    @classmethod
+    def all(cls):
+        return [cls.on, cls.off, cls.always]
+
+
 def git_pull(logger, path):
     logger.debug('Pulling', **locals())
     return shell_run(logger, 'git pull', cwd=path)
@@ -248,9 +258,9 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
     raise last_exc
 
 
-def pprint_json(obj: typing.Union[typing.List, typing.Dict]):
+def pprint_json(obj: typing.Union[typing.List, typing.Dict], colors_mode: str = OutputColorsModes.on):
     formatted_json = simplejson.dumps(obj, indent=2)
-    if sys.stdout.isatty():
+    if colors_mode == OutputColorsModes.always or (sys.stdout.isatty() and colors_mode == OutputColorsModes.on):
         json_lexer = pygments.lexers.get_lexer_by_name('Json')
         formatter = pygments.formatters.get_formatter_by_name('terminal16m', style='paraiso-dark')
         colorful_json = pygments.highlight(formatted_json, json_lexer, formatter)
