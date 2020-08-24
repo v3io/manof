@@ -20,13 +20,17 @@ class Utils(object):
 
 
 def single_quote_strings(logical_line, tokens):
-    for lexeme, start, _, in Utils.get_string_tokens(tokens):
+    for lexeme, start, _, in Utils.get_string_tokens(
+        tokens
+    ):
         if lexeme.startswith('"') and not lexeme.startswith('"""'):
             yield start, 'I100 double-quote string used (expected single-quote)'
 
 
 def multiline_string_on_newline(logical_line, tokens):
-    for lexeme, start, end, in Utils.get_string_tokens(tokens):
+    for lexeme, start, end, in Utils.get_string_tokens(
+        tokens
+    ):
         if lexeme.startswith('"""'):
             if not re.match(r'^\"\"\"\n', lexeme):
                 yield start, 'I101 multiline string must start on next line after triple double-quotes'
@@ -35,7 +39,9 @@ def multiline_string_on_newline(logical_line, tokens):
 
 
 def multiline_string_double_quotes(logical_line, tokens):
-    for lexeme, start, _, in Utils.get_string_tokens(tokens):
+    for lexeme, start, _, in Utils.get_string_tokens(
+        tokens
+    ):
         if lexeme.startswith('\'\'\''):
             yield start, 'I103 triple single-quotes used in multiline string (expected triple double-quotes)'
 

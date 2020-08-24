@@ -107,9 +107,8 @@ class Manof(object):
     def pull(self):
         return self._run_command_on_target_tree('pull')
 
-    @defer.inlineCallbacks
     def update(self):
-        yield self._update_manager.update()
+        return self._update_manager.update()
 
     @defer.inlineCallbacks
     def serialize(self):
@@ -353,6 +352,8 @@ class Manof(object):
     def _enforce_no_store_true_args(parser):
         for action in parser._actions:
             if isinstance(action, argparse._StoreTrueAction):
-                error_msg = 'manofest.py doens\'t support argument registration of type=\'store_true\' \n' + \
-                            'offending action={0}'.format(action)
+                error_msg = (
+                    'manofest.py doens\'t support argument registration of'
+                    ' type=\'store_true\' \noffending action={0}'.format(action)
+                )
                 raise SyntaxError(error_msg)
