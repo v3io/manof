@@ -112,9 +112,8 @@ class Manof(object):
     def pull(self):
         return self._run_command_on_target_tree('pull')
 
-    @defer.inlineCallbacks
     def update(self):
-        yield self._update_manager.update()
+        return self._update_manager.update()
 
     @defer.inlineCallbacks
     def serialize(self):
