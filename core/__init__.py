@@ -112,9 +112,8 @@ class Manof(object):
     def pull(self):
         return self._run_command_on_target_tree('pull')
 
-    @defer.inlineCallbacks
     def update(self):
-        yield defer.ensureDeferred(self._update_manager.update())
+        return self._update_manager.update()
 
     @defer.inlineCallbacks
     def serialize(self):
@@ -394,7 +393,6 @@ class Manof(object):
             if isinstance(action, argparse._StoreTrueAction):
                 error_msg = (
                     'manofest.py doens\'t support argument registration of'
-                    ' type=\'store_true\' \n'
-                    + 'offending action={0}'.format(action)
+                    ' type=\'store_true\' \noffending action={0}'.format(action)
                 )
                 raise SyntaxError(error_msg)
