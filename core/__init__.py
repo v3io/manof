@@ -114,7 +114,7 @@ class Manof(object):
 
     @defer.inlineCallbacks
     def update(self):
-        yield defer.ensureDeferred(self._update_manager.update())
+        yield self._update_manager.update()
 
     @defer.inlineCallbacks
     def serialize(self):
