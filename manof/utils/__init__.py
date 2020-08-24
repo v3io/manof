@@ -62,9 +62,9 @@ class CommandFailedError(Exception):
         return self._err
 
 
-def git_pull(logger, path):
+def git_pull(logger, path, quiet=False):
     logger.debug('Pulling', **locals())
-    return shell_run(logger, 'git pull', cwd=path)
+    return shell_run(logger, 'git pull', cwd=path, quiet=quiet)
 
 
 def shell_run(logger, command, cwd=None, quiet=False, env=None):

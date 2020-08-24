@@ -19,7 +19,13 @@ class UpdateManager(object):
         sys.stdout.flush()
 
         # try to update by simply pulling whatever branch / remote we're on
-        out, _, _ = yield manof.utils.git_pull(self._logger, self._manof_path)
+        out, err, exit_code = yield manof.utils.git_pull(self._logger, self._manof_path, quiet=True)
+        if exit_code:
+            if 'You are not currently on a branch' in err:
+                sys.stdout.write('Skipping updating manof (checkout to a specific branch first)')
+                return
+            self._logger.error('Failed to update manof', exit_code=exit_code, err=err, out=out)
+            raise RuntimeError('Failed to update manof')
 
         # if "up-to-date" was not outputted, this means that we updated - return True in this case
         updated = 'up-to-date' not in out
