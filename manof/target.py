@@ -127,6 +127,10 @@ class Target(object):
         if isinstance(command, list):
             command = ' && '.join(command)
 
+        # use os env if not explicitly given
+        if env is None:
+            env = os.environ
+
         # if dry run, do nothing
         if not self._args.dry_run:
             result = yield manof.utils.execute(command,
