@@ -1,4 +1,7 @@
+import copy
 import os
+import tempfile
+import sys
 
 from twisted.internet import defer, protocol
 
@@ -175,10 +178,35 @@ def execute(command, cwd, quiet, env=None, logger=None):
         else:
             return _out, _err, _signal
 
+    # use os env if not explicitly given
+    if env is None:
+        env = os.environ
+
+    # in case env was fed with os.environ in function arg
+    env = copy.copy(env)
+
+    # a bug on macOS Docker version ~2.3.0.5 not allowing to execute docker commands without explicitly setting
+    # `HOME` envvar
+    if _darwin() and not env.get('HOME'):
+
+        # reason for not using os.path.expanduser('~')
+        # is it might be lack of permission to overwrite the existing one / make it dirty
+        # e.g. failure for such case "context store: mkdir /.docker: read-only file system"
+        # env['HOME'] = os.path.expanduser('~')
+
+        # it is the user responsibility to cleanup such tempdfile
+        docker_home_dir = tempfile.mkdtemp()
+        env['HOME'] = docker_home_dir
+
+        if logger:
+            logger.warn('A temporary docker home dir was created, ensure removing it once you are done',
+                        docker_home_dir=docker_home_dir,
+                        env=env)
+
     d = getProcessOutputAndValue('/bin/bash',
                                  args=['-c', command],
                                  path=cwd,
-                                 env=env or os.environ)
+                                 env=env)
 
     # errback chain is fired if a signal is raised in the process
     d.addErrback(_get_error)
@@ -244,3 +272,7 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
 
     last_exc.message = 'Failed to execute command with given retries:\n {0}'.format(last_exc.message)
     raise last_exc
+
+
+def _darwin():
+    return sys.platform.lower().startswith('darwin')
