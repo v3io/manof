@@ -136,7 +136,7 @@ class Target(object):
         # in case env was fed with os.environ in function arg
         env = copy.copy(env)
 
-        # a bug on macOS Docker version ~2.3.0.5 not allowing to execute docker commands without expliticly setting
+        # a bug on macOS Docker version ~2.3.0.5 not allowing to execute docker commands without explicitly setting
         # `HOME` envvar
         if self._darwin() and not env.get('HOME'):
 
