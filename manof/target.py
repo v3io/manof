@@ -3,6 +3,8 @@ import types
 import os
 import simplejson
 import sys
+import tempfile
+import copy
 
 import pygments
 import pygments.formatters
@@ -131,6 +133,26 @@ class Target(object):
         if env is None:
             env = os.environ
 
+        # in case env was fed with os.environ in function arg
+        env = copy.copy(env)
+
+        # a bug on macOS Docker version ~2.3.0.5 not allowing to execute docker commands without expliticly setting
+        # `HOME` envvar
+        if self._darwin() and not env.get('HOME'):
+
+            # reason for not using os.path.expanduser('~')
+            # is it might be lack of permission to overwrite the existing one / make it dirty
+            # e.g. failure for such case "context store: mkdir /.docker: read-only file system"
+            # env['HOME'] = os.path.expanduser('~')
+
+            # it is the user responsibility to cleanup such tempdfile
+            docker_home_dir = tempfile.mkdtemp()
+            env['HOME'] = docker_home_dir
+
+            self._logger.warn('A temporary docker home dir was created, ensure removing it once you are done',
+                              docker_home_dir=docker_home_dir,
+                              env=env)
+
         # if dry run, do nothing
         if not self._args.dry_run:
             result = yield manof.utils.execute(command,
@@ -159,3 +181,6 @@ class Target(object):
             argument = '--{0}'.format(argument)
 
         return argument
+
+    def _darwin(self):
+        return sys.platform.lower().startswith('darwin')
