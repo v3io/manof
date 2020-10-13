@@ -3,7 +3,6 @@ import logging.handlers
 import os
 import sys
 
-import colorama
 from twisted.python.log import addObserver
 
 from clients.logging.formatter import helpers
@@ -109,7 +108,9 @@ class Client(object):
         log_colors='on',
     ):
 
-        colorama.init()
+        # disabled - this hijacks stdout and adds RESETCOLOR at the end regardless if we are on atty or not
+        # std colors works without it, so no need for that ATM
+        # colorama.init()
 
         # initialize root logger
         logging.setLoggerClass(_VariableLogging)
