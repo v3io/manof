@@ -9,13 +9,14 @@ import tests.integration
 class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
     @defer.inlineCallbacks
     def test_serialize(self):
-        results, err, signal = yield self._manof_command(
+        serialized_group_contents, _, _ = yield self._manof_command(
             '--log-console-severity E serialize',
             [
                 'SomeGroup',
             ],
         )
-        simplejson.loads(results)
+        serialized_group = simplejson.loads(serialized_group_contents)
+        self.assertEqual('test_image', serialized_group[0]['name'])
 
     @defer.inlineCallbacks
     def test_run_and_rm(self):
