@@ -1,3 +1,5 @@
+import simplejson
+
 from twisted.internet import defer
 
 import manof.utils
@@ -5,6 +7,16 @@ import tests.integration
 
 
 class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
+    @defer.inlineCallbacks
+    def test_serialize(self):
+        results, err, signal = yield self._manof_command(
+            '--log-console-severity E serialize',
+            [
+                'SomeGroup',
+            ],
+        )
+        simplejson.loads(results)
+
     @defer.inlineCallbacks
     def test_run_and_rm(self):
         self._logger.info('Testing run command happy flow')
