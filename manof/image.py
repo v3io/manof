@@ -430,6 +430,10 @@ class Image(manof.Target):
         if self.device_write_iops:
             command += '--device-write-iops={0} '.format(self.device_write_iops)
 
+        # set restart policy
+        if self.restart:
+            command += '--restart={0} '.format(self.restart)
+
         return command
 
     @property
@@ -725,6 +729,10 @@ class Image(manof.Target):
         if 'device_write_iops' in self._args and self._args.device_write_iops:
             return self._args.device_write_iops
 
+        return None
+
+    @property
+    def restart(self):
         return None
 
     def to_dict(self):
