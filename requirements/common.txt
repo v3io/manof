@@ -3,5 +3,5 @@ simplejson==3.17.2
 Twisted==20.3.0
 pytz==2020.1
 colorama==0.4.3
-pygments==2.6.1
+pygments==2.7.4
 ruamel.yaml==0.16.10
