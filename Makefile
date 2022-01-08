@@ -15,7 +15,7 @@ fmt:
 .PHONY: fmt-check
 fmt-check:
 	@echo "Running black fmt check..."
-	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff -S --exclude='.*venv.*' .
+	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff .
 
 .PHONY: test
 test: test-unit test-integ
