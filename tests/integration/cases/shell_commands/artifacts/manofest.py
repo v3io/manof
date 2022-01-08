@@ -26,7 +26,25 @@ class TestImage(manof.Image):
 
     @property
     def command(self):
-        return '/bin/sh -c "echo \'{0}\'"'.format(self.name)
+        return '/bin/sh -c "echo \'{0}\' && sleep infinity"'.format(self.name)
+
+
+class TestImage2(TestImage):
+    @property
+    def restart(self):
+        return 'on-failure:5'
+
+    @property
+    def memory(self):
+        return '6Mib'
+
+    @property
+    def cpus(self):
+        return '1'
+
+    @property
+    def cap_add(self):
+        return ['SYS_ADMIN']
 
 
 class SomeGroup(manof.Group):
@@ -34,4 +52,5 @@ class SomeGroup(manof.Group):
     def members(self):
         return [
             'TestImage',
+            'TestImage2',
         ]
