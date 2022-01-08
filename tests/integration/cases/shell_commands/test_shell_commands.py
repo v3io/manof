@@ -102,7 +102,7 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
             # run the image using manof
             yield self._execute_manof_command('run', [image_name])
 
-            # check the image exists
+            # check the container exists
             docker_log_output, _, _ = yield manof.utils.execute(
                 'docker logs {0}'.format(image_name),
                 cwd=None,
