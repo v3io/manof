@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="(it) basic commands" type="tests" factoryName="Twisted Trial">
-    <module name="manof_v3io" />
+    <module name="manof" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
