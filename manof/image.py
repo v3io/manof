@@ -24,7 +24,9 @@ class Image(manof.Target):
         if 'force_rm' in self._args and self._args.force_rm:
             provision_args.append('--force-rm')
 
-        daemon_supports_multiplatform_build = yield self._daemon_supports_multiplatform_build()
+        daemon_supports_multiplatform_build = (
+            yield self._daemon_supports_multiplatform_build()
+        )
         if self.platform_architecture and daemon_supports_multiplatform_build:
             provision_args.append('--platform={0}'.format(self.platform_architecture))
 
@@ -833,6 +835,8 @@ class Image(manof.Target):
     def _daemon_supports_multiplatform_build(self):
 
         # retcode=0 -> daemon supports multi platform builds
-        _, _, retcode = yield self._run_command('docker buildx ls', raise_on_error=False)
+        _, _, retcode = yield self._run_command(
+            'docker buildx ls', raise_on_error=False
+        )
 
         defer.returnValue(retcode == 0)
