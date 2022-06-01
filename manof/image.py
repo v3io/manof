@@ -836,8 +836,6 @@ class Image(manof.Target):
 
         # There are 2 lines with the key Experimental - one for the server and one for the client.
         # They both need to be true for the multiplatform build to be supported
-        out, _, _ = yield self._run_command(
-            'docker version | grep Experimental', raise_on_error=False
-        )
+        out, _, _ = yield self._run_command('docker version | grep Experimental')
 
         defer.returnValue("false" not in out)
