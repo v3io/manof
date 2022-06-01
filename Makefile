@@ -15,12 +15,12 @@ flake8:
 .PHONY: fmt
 fmt:
 	@echo "Running black fmt..."
-	$(VENV_PYTHON) -m black --skip-string-normalization .
+	$(VENV_PYTHON) -m black --skip-string-normalization --exclude=./venv .
 
 .PHONY: fmt-check
 fmt-check:
 	@echo "Running black fmt check..."
-	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff -S .
+	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff -S --exclude=./venv .
 
 .PHONY: test
 test: test-unit test-integ
