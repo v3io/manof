@@ -24,6 +24,9 @@ class Image(manof.Target):
         if 'force_rm' in self._args and self._args.force_rm:
             provision_args.append('--force-rm')
 
+        if self.platform_architecture:
+            provision_args.append('--platform={0}'.format(self.platform_architecture))
+
         # if there is a context, do a build
         if self.context is not None:
             command = 'docker build --rm {0} --tag={1} -f {2} {3}'.format(
@@ -397,6 +400,10 @@ class Image(manof.Target):
             command += '--device-write-iops={0} '.format(self.device_write_iops)
 
         return command
+
+    @property
+    def platform_architecture(self):
+        return None
 
     @property
     def remote_image_name(self):
