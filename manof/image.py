@@ -834,9 +834,8 @@ class Image(manof.Target):
     @defer.inlineCallbacks
     def _daemon_supports_multiplatform_build(self):
 
-        # retcode=0 -> daemon supports multi platform builds
-        _, _, retcode = yield self._run_command(
-            'docker buildx ls', raise_on_error=False
-        )
+        # There are 2 lines with the key Experimental - one for the server and one for the client.
+        # They both need to be true for the multiplatform build to be supported
+        out, _, _ = yield self._run_command('docker version | grep Experimental')
 
-        defer.returnValue(retcode == 0)
+        defer.returnValue("false" not in out)
