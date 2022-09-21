@@ -128,7 +128,9 @@ class Image(manof.Target):
             for k, v in self.labels.items():
                 command += '--label {0}={1} '.format(k, v)
 
-        command += '--label {0}={1} '.format('manof.commandSHA', "<Replace:manof.commandSHA>")
+        command += '--label {0}={1} '.format(
+            'manof.commandSHA', "<Replace:manof.commandSHA>"
+        )
 
         # add user/group
         if self.user_and_group is not None:

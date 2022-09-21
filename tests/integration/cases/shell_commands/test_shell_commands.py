@@ -19,6 +19,26 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
         self.assertEqual('test_image', serialized_group[0]['name'])
 
     @defer.inlineCallbacks
+    def test_run_verify_md5(self):
+        self._logger.info('Testing run verify md5')
+        target_name = 'test_image'
+
+        # run twice to ensure md5 won't change between runs
+        for _ in range(2):
+            yield self._manof_command('run', ["--dummy", "do", target_name])
+            command_sha = yield manof.utils.get_running_container_sha(
+                target_name, self._logger
+            )
+            self.assertEqual('1218ba70c6cd6ff1af4aadab48d1f997', command_sha)
+
+        # run again and make ensure md5 has changed due to "--dummy" value change
+        yield self._manof_command('run', ["--dummy", "else", target_name])
+        command_sha = yield manof.utils.get_running_container_sha(
+            target_name, self._logger
+        )
+        self.assertEqual('5c108599bc7eb70f8dea7ac53ac915de', command_sha)
+
+    @defer.inlineCallbacks
     def test_run_and_rm(self):
         self._logger.info('Testing run command happy flow')
 

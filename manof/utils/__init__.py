@@ -227,6 +227,19 @@ def execute(command, cwd, quiet, env=None, logger=None):
     defer.returnValue((out, err, code))
 
 
+@defer.inlineCallbacks
+def get_running_container_sha(target_name, logger=None):
+    sha, _, _ = yield execute(
+        'docker inspect --format \'{{{{ index .Config.Labels "manof.commandSHA"}}}}\' {0}'.format(
+            target_name
+        ),
+        logger=logger,
+        cwd=None,
+        quiet=False,
+    )
+    return sha
+
+
 def store_boolean(value):
     return True if value == 'true' else False
 
