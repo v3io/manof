@@ -22,21 +22,22 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
     def test_run_verify_md5(self):
         self._logger.info('Testing run verify md5')
         target_name = 'test_image'
+        label_name = manof.image.Constants.RUN_COMMAND_MD5_HASH_LABEL_NAME
 
         # run twice to ensure md5 won't change between runs
         for _ in range(2):
             yield self._manof_command('run', ["--dummy", "do", target_name])
-            command_sha = yield manof.utils.get_running_container_sha(
-                target_name, self._logger
+            command_sha = yield manof.utils.get_running_container_label(
+                target_name, label_name, self._logger
             )
-            self.assertEqual('1218ba70c6cd6ff1af4aadab48d1f997', command_sha)
+            self.assertEqual('4a738101122b28baae05fac7a5dc6b32', command_sha)
 
         # run again and make ensure md5 has changed due to "--dummy" value change
         yield self._manof_command('run', ["--dummy", "else", target_name])
-        command_sha = yield manof.utils.get_running_container_sha(
-            target_name, self._logger
+        command_sha = yield manof.utils.get_running_container_label(
+            target_name, label_name, self._logger
         )
-        self.assertEqual('5c108599bc7eb70f8dea7ac53ac915de', command_sha)
+        self.assertEqual('a3ada1db9e167a8a747c8ddd4de63757', command_sha)
 
     @defer.inlineCallbacks
     def test_run_and_rm(self):

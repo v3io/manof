@@ -11,6 +11,13 @@ import manof
 import manof.utils
 
 
+class Constants(object):
+    RUN_COMMAND_MD5_HASH_LABEL_NAME = 'manof.runCommandMD5Hash'
+    RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER = (
+        '<placeholder:manof.runCommandMD5Hash>'
+    )
+
+
 class Image(manof.Target):
     @defer.inlineCallbacks
     def provision(self):
@@ -129,7 +136,8 @@ class Image(manof.Target):
                 command += '--label {0}={1} '.format(k, v)
 
         command += '--label {0}={1} '.format(
-            'manof.commandSHA', "<Replace:manof.commandSHA>"
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_NAME,
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER,
         )
 
         # add user/group
@@ -217,7 +225,9 @@ class Image(manof.Target):
         md5 = hashlib.md5()
         md5.update(command.encode('utf-8'))
         command_sha = md5.hexdigest()
-        command = command.replace('<Replace:manof.commandSHA>', command_sha)
+        command = command.replace(
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER, command_sha
+        )
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             print(command)

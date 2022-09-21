@@ -228,10 +228,10 @@ def execute(command, cwd, quiet, env=None, logger=None):
 
 
 @defer.inlineCallbacks
-def get_running_container_sha(target_name, logger=None):
+def get_running_container_label(target_name, label, logger=None):
     sha, _, _ = yield execute(
-        'docker inspect --format \'{{{{ index .Config.Labels "manof.commandSHA"}}}}\' {0}'.format(
-            target_name
+        'docker inspect --format \'{{{{ index .Config.Labels "{0}"}}}}\' {1}'.format(
+            label, target_name
         ),
         logger=logger,
         cwd=None,
