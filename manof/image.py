@@ -1,4 +1,5 @@
 import os
+import hashlib
 import sys
 import pipes
 import inspect
@@ -127,6 +128,8 @@ class Image(manof.Target):
             for k, v in self.labels.items():
                 command += '--label {0}={1} '.format(k, v)
 
+        command += '--label {0}={1} '.format('manof.commandSHA', "<Replace:manof.commandSHA>")
+
         # add user/group
         if self.user_and_group is not None:
             user, group = self.user_and_group
@@ -207,6 +210,12 @@ class Image(manof.Target):
 
         # strip trailing space
         command = command.strip()
+
+        # update command md5
+        md5 = hashlib.md5()
+        md5.update(command.encode('utf-8'))
+        command_sha = md5.hexdigest()
+        command = command.replace('<Replace:manof.commandSHA>', command_sha)
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             print(command)
