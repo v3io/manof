@@ -182,6 +182,12 @@ def _register_arguments(parser):
         help='Will enforce dry run and print the run command only, no logs at all',
         action='store_true',
     )
+    run_parent_parser.add_argument(
+        '-prmd5o',
+        '--print-run-md5-only',
+        help='Will print the run command md5 only. no logs at all',
+        action='store_true',
+    )
 
     # run
     subparsers.add_parser(

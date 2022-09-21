@@ -1,4 +1,5 @@
 import os
+import hashlib
 import sys
 import pipes
 import inspect
@@ -8,6 +9,13 @@ from twisted.internet import defer
 
 import manof
 import manof.utils
+
+
+class Constants(object):
+    RUN_COMMAND_MD5_HASH_LABEL_NAME = 'manof.runCommandMD5Hash'
+    RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER = (
+        '<placeholder:manof.runCommandMD5Hash>'
+    )
 
 
 class Image(manof.Target):
@@ -127,6 +135,11 @@ class Image(manof.Target):
             for k, v in self.labels.items():
                 command += '--label {0}={1} '.format(k, v)
 
+        command += '--label {0}={1} '.format(
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_NAME,
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER,
+        )
+
         # add user/group
         if self.user_and_group is not None:
             user, group = self.user_and_group
@@ -208,8 +221,20 @@ class Image(manof.Target):
         # strip trailing space
         command = command.strip()
 
+        # update command md5
+        md5 = hashlib.md5()
+        md5.update(command.encode('utf-8'))
+        command_sha = md5.hexdigest()
+        command = command.replace(
+            Constants.RUN_COMMAND_MD5_HASH_LABEL_VALUE_PLACEHOLDER, command_sha
+        )
+
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             print(command)
+        elif (
+            hasattr(self._args, 'print_run_md5_only') and self._args.print_run_md5_only
+        ):
+            print(command_sha)
 
         try:
             out, _, _ = yield self._run_command(command)
