@@ -28,6 +28,11 @@ class Manof(object):
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             self._args.dry_run = True
             self._logger.setLevel(0)
+        elif (
+            hasattr(self._args, 'print_run_md5_only') and self._args.print_run_md5_only
+        ):
+            self._args.dry_run = True
+            self._logger.setLevel(0)
 
         # Set number of tries according to args (only effects pull and push)
         self._number_of_tries = (

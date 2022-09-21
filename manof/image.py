@@ -231,6 +231,10 @@ class Image(manof.Target):
 
         if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
             print(command)
+        elif (
+            hasattr(self._args, 'print_run_md5_only') and self._args.print_run_md5_only
+        ):
+            print(command_sha)
 
         try:
             out, _, _ = yield self._run_command(command)

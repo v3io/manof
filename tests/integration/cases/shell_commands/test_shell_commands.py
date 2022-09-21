@@ -26,18 +26,33 @@ class BasicCommandsTestCase(tests.integration.IntegrationTestCase):
 
         # run twice to ensure md5 won't change between runs
         for _ in range(2):
-            yield self._manof_command('run', ["--dummy", "do", target_name])
+            yield self._manof_command('run', ['--dummy', 'do', target_name])
             command_sha = yield manof.utils.get_running_container_label(
                 target_name, label_name, self._logger
             )
             self.assertEqual('4a738101122b28baae05fac7a5dc6b32', command_sha)
 
+            run_md5, _, _ = yield self._manof_command(
+                'run', ['--print-run-md5-only', '--dummy', 'do', target_name]
+            )
+            self.assertEqual('4a738101122b28baae05fac7a5dc6b32', run_md5)
+
         # run again and make ensure md5 has changed due to "--dummy" value change
-        yield self._manof_command('run', ["--dummy", "else", target_name])
+        yield self._manof_command('run', ['--dummy', 'else', target_name])
         command_sha = yield manof.utils.get_running_container_label(
             target_name, label_name, self._logger
         )
+        run_md5, _, _ = yield self._manof_command(
+            'run', ['--print-run-md5-only', '--dummy', 'else', target_name]
+        )
         self.assertEqual('a3ada1db9e167a8a747c8ddd4de63757', command_sha)
+        self.assertEqual('a3ada1db9e167a8a747c8ddd4de63757', run_md5)
+
+        # different dummy data yields different run md5
+        run_md5, _, _ = yield self._manof_command(
+            'run', ['--print-run-md5-only', '--dummy', 'else2', target_name]
+        )
+        self.assertNotEqual(run_md5, command_sha)
 
     @defer.inlineCallbacks
     def test_run_and_rm(self):
