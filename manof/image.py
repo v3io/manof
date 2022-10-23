@@ -80,7 +80,8 @@ class Image(manof.Target):
         self._logger.debug('Running')
 
         # remove
-        yield self.rm(True)
+        if self.container_name:
+            yield self.rm(True)
 
         command = 'docker run '
 
@@ -199,7 +200,8 @@ class Image(manof.Target):
             command += '--hostname={0} '.format(self.hostname)
 
         # set name
-        command += '--name {0} '.format(self.container_name)
+        if self.container_name:
+            command += '--name {0} '.format(self.container_name)
 
         for cap in self.cap_add:
             if cap:

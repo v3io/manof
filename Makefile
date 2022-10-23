@@ -5,12 +5,7 @@ all: venv lint test
 	@echo Done.
 
 .PHONY: lint
-lint: venv flake8 fmt-check
-
-.PHONY: flake8
-flake8:
-	@echo "Running flake8 lint..."
-	$(VENV_PYTHON) -m flake8 .
+lint: venv fmt-check
 
 .PHONY: fmt
 fmt:
@@ -43,7 +38,6 @@ install-ci: install-venv install
 
 venv:
 	python ./install --dev
-	$(VENV_PYTHON) -m pip install -e ./tools/flake8_plugin
 
 .PHONY: install-venv
 install-venv:
