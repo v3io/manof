@@ -80,7 +80,8 @@ class Image(manof.Target):
         self._logger.debug('Running')
 
         # remove
-        yield self.rm(True)
+        if self.container_name:
+            yield self.rm(True)
 
         command = 'docker run '
 
