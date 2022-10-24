@@ -163,7 +163,7 @@ class Manof(object):
             for dependent_target in target.dependent_targets
         ]
 
-        return defer.DeferredList(defer_list, fireOnOneErrback=True)
+        return defer.DeferredList(defer_list, fireOnOneErrback=True, consumeErrors=True)
 
     def _load_manofest(self):
 
