@@ -864,7 +864,7 @@ class Image(manof.Target):
 
         # multiplatform build is not experimental from 20.10.21
         out, _, _ = yield self._run_command(
-            'docker version -f json | jq .Client.Version'
+            'docker version -f json | jq \'.Client.Version\''
         )
         try:
             client_version = semver.Version.parse(out)
