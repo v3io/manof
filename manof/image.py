@@ -866,7 +866,7 @@ class Image(manof.Target):
         out, _, _ = yield self._run_command('docker version -f json | jq .Client.Version')
         try:
             client_version = semver.Version.parse(out)
-            if client_version > semver.Version.parse('20.10.21'):
+            if client_version >= semver.Version.parse('20.10.21'):
                 defer.returnValue(True)
 
         except ValueError:
