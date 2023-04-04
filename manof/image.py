@@ -5,6 +5,7 @@ import pipes
 import inspect
 import re
 import semver
+import simplejson
 
 from twisted.internet import defer
 
@@ -863,12 +864,13 @@ class Image(manof.Target):
     def _daemon_supports_multiplatform_build(self):
 
         # multiplatform build is not experimental from 20.10.21
-        out, _, _ = yield self._run_command(
-            'docker version -f json | jq \'.Client.Version\''
-        )
+        out, _, _ = yield self._run_command('docker version -f json')
+        docker_version = simplejson.loads(out)
         try:
-            client_version = semver.Version.parse(out)
-            if client_version >= semver.Version.parse('20.10.21'):
+            client_version = docker_version.get('Client', {}).get('Version')
+            if client_version and semver.Version.parse(
+                client_version
+            ) >= semver.Version.parse('20.10.21'):
                 defer.returnValue(True)
 
         except ValueError:
