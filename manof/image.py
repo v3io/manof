@@ -6,8 +6,6 @@ import inspect
 import re
 import semver
 
-# import simplejson
-
 from twisted.internet import defer
 
 import manof
@@ -868,9 +866,7 @@ class Image(manof.Target):
         out, _, _ = yield self._run_command(
             'docker version --format \'{{.Client.Version}}\''
         )
-        # docker_version = simplejson.loads(out)
         try:
-            # client_version = docker_version.get('Client', {}).get('Version')
             if out and semver.Version.parse(out) >= semver.Version.parse('20.10.21'):
                 defer.returnValue(True)
 
