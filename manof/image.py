@@ -4,6 +4,7 @@ import sys
 import pipes
 import inspect
 import re
+import semver
 
 from twisted.internet import defer
 
@@ -860,6 +861,17 @@ class Image(manof.Target):
 
     @defer.inlineCallbacks
     def _daemon_supports_multiplatform_build(self):
+
+        # multiplatform build is not experimental from 20.10.21
+        out, _, _ = yield self._run_command(
+            'docker version --format \'{{.Client.Version}}\''
+        )
+        try:
+            if out and semver.Version.parse(out) >= semver.Version.parse('20.10.21'):
+                defer.returnValue(True)
+
+        except ValueError:
+            pass
 
         # There are 2 lines with the key Experimental - one for the server and one for the client.
         # They both need to be true for the multiplatform build to be supported

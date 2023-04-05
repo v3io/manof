@@ -6,3 +6,4 @@ colorama==0.4.5
 pygments==2.13.0
 ruamel.yaml==0.17.21
 setuptools==67.3.3
+semver==3.0.0
