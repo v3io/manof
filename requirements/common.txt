@@ -3,7 +3,7 @@ simplejson==3.17.6
 Twisted==22.10.0
 pytz==2022.5
 colorama==0.4.5
-pygments==2.13.0
+pygments==2.15.0
 ruamel.yaml==0.17.21
 setuptools==67.3.3
 semver==3.0.0
