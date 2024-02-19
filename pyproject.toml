@@ -1,9 +1,11 @@
 # please keep this to a minimum - defaults are good
 [tool.black]
 exclude = '''
-/(
+^/(   # anchor to the root
+  (   # exclude these directories
     \.git
-  | \.venv
-  | \venv
-)/
+    | \.venv
+    | venv
+  )/
+)
 '''
