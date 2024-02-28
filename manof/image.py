@@ -180,7 +180,7 @@ class Image(manof.Target):
         for env in self._update_env_override():
 
             # single environment variable means set it to itself (x=x), thus forwarding the variable from the
-            # outter env into the docker env
+            # outer env into the docker env
             if isinstance(env, str):
                 lvalue = env
                 rvalue = os.environ.get(lvalue, None)
@@ -211,6 +211,10 @@ class Image(manof.Target):
         for cap in self.cap_drop:
             if cap:
                 command += '--cap-drop={0} '.format(cap)
+
+        # set restart policy
+        if self.restart:
+            command += '--restart={0} '.format(self.restart)
 
         command = self._add_device_arguments(command)
 
@@ -725,6 +729,10 @@ class Image(manof.Target):
         if 'device_write_iops' in self._args and self._args.device_write_iops:
             return self._args.device_write_iops
 
+        return None
+
+    @property
+    def restart(self):
         return None
 
     def to_dict(self):
