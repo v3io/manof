@@ -1,3 +1,14 @@
+[project]
+name = 'manof'
+requires-python = ">=3.7,<3.8"
+version = "0.1.2"
+authors = [
+    {name = "Your Name", email = "you@yourdomain.com"},
+]
+
+[tool.setuptools]
+py-modules = []
+
 # please keep this to a minimum - defaults are good
 [tool.black]
 exclude = '''

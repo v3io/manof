@@ -53,7 +53,7 @@ def main():
         # (from a local dir if it exists)
         # "python -m pip install" instead of "pip install" handles a pip
         # issue where it fails in a long-named dir
-        run('virtualenv --python=python3 venv && '
+        run('virtualenv --python=python3.7 venv && '
             'source venv/bin/activate && '
             'python -m pip install {0} incremental && '.format(local_pip_packages) +
             'python -m pip install {0} -r {1}'.format(local_pip_packages, requirements_file))
