@@ -1,6 +1,7 @@
 inflection==0.5.1
 simplejson==3.19.3
-Twisted==24.10.0
+Twisted==24.10.0;python_version>="3.9"
+Twisted==22.10.0;python_version<"3.9"
 pytz==2024.2
 colorama==0.4.6
 pygments==2.18.0
