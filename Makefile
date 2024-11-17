@@ -10,12 +10,12 @@ lint: venv fmt-check
 .PHONY: fmt
 fmt:
 	@echo "Running black fmt..."
-	$(VENV_PYTHON) -m black --skip-string-normalization --exclude='.*venv.*' .
+	$(VENV_PYTHON) -m black --exclude='.*venv.*' .
 
 .PHONY: fmt-check
 fmt-check:
 	@echo "Running black fmt check..."
-	$(VENV_PYTHON) -m black --skip-string-normalization --check --diff .
+	$(VENV_PYTHON) -m black --check --diff .
 
 .PHONY: test
 test: test-unit test-integ
@@ -33,13 +33,5 @@ test-integ: venv
 install: venv
 	@echo Installed
 
-.PHONY: install-ci
-install-ci: install-venv install
-
 venv:
 	python ./install --dev
-
-.PHONY: install-venv
-install-venv:
-	python -m pip install --upgrade pip
-	python -m pip install virtualenv

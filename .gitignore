@@ -11,6 +11,7 @@ pip-selfcheck.json
 *.egg-info
 .coverage
 .ziggy
+.python-version
 
 .idea/*
 !.idea/runConfigurations/

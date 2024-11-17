@@ -24,7 +24,7 @@ class Volume(manof.Target):
 
     @property
     def prefix(self):
-        return ''
+        return ""
 
     @property
     def volume_name(self):
@@ -44,49 +44,49 @@ class NamedVolume(Volume):
         """
 
         if rm is None:
-            rm = 'force_rm' in self._args and self._args.force_rm
+            rm = "force_rm" in self._args and self._args.force_rm
 
         if rm:
             yield self.rm(safe=True)
 
-        self._logger.info('Creating named-volume', name=self.name)
+        self._logger.info("Creating named-volume", name=self.name)
 
         creation_args = []
         if len(self.labels):
             for k, v in self.labels.items():
-                creation_args.append('--label {0}={1}'.format(k, v))
+                creation_args.append("--label {0}={1}".format(k, v))
 
         if len(self.options):
             for k, v in self.options.items():
-                creation_args.append('--opt {0}={1}'.format(k, v))
+                creation_args.append("--opt {0}={1}".format(k, v))
 
-        command = 'docker volume create {0} --driver={1} --name={2}'.format(
-            ' '.join(creation_args), self.driver, self.volume_name
+        command = "docker volume create {0} --driver={1} --name={2}".format(
+            " ".join(creation_args), self.driver, self.volume_name
         )
         # don't count on idempotency (labels):
         exists = yield self.exists()
         if exists:
             self._logger.debug(
-                'Named volume exists. Doing nothing.', named_volume=self.volume_name
+                "Named volume exists. Doing nothing.", named_volume=self.volume_name
             )
         else:
             self._logger.debug(
-                'Named volume doesn\'t exist. Creating.', named_volume=self.volume_name
+                "Named volume doesn't exist. Creating.", named_volume=self.volume_name
             )
             yield self._run_command(command)
 
     def run(self):
-        self._logger.info('Running a named-volume is meaningless', name=self.name)
+        self._logger.info("Running a named-volume is meaningless", name=self.name)
 
     def stop(self):
-        self._logger.info('Stopping a named-volume is meaningless', name=self.name)
+        self._logger.info("Stopping a named-volume is meaningless", name=self.name)
 
     @defer.inlineCallbacks
     def rm(self, safe=True):
         """
         De facto "docker volume rm"
         """
-        self._logger.info('Removing named-volume')
+        self._logger.info("Removing named-volume")
 
         yield self._lock.acquire()
         try:
@@ -95,7 +95,7 @@ class NamedVolume(Volume):
                 if not exists:
                     defer.returnValue(None)
 
-            command = 'docker volume rm {0}'.format(self.volume_name)
+            command = "docker volume rm {0}".format(self.volume_name)
 
             # remove volume (fail if doesn't exist)
             yield self._run_command(command)
@@ -104,14 +104,14 @@ class NamedVolume(Volume):
 
     @defer.inlineCallbacks
     def lift(self):
-        self._logger.debug('Lifting')
+        self._logger.debug("Lifting")
 
         # just provision
         yield self.provision()
 
     @defer.inlineCallbacks
     def exists(self):
-        command = 'docker volume inspect {0}'.format(self.volume_name)
+        command = "docker volume inspect {0}".format(self.volume_name)
 
         # retcode=0 -> volume exists
         _, _, retcode = yield self._run_command(command, raise_on_error=False)
@@ -120,11 +120,11 @@ class NamedVolume(Volume):
 
     @property
     def prefix(self):
-        return ''
+        return ""
 
     @property
     def driver(self):
-        return 'local'
+        return "local"
 
     @property
     def options(self):

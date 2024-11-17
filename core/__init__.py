@@ -17,7 +17,7 @@ class RootTarget(manof.Target):
     def name(self):
 
         # override default behavior of "root_target"
-        return 'root'
+        return "root"
 
 
 class Manof(object):
@@ -25,18 +25,18 @@ class Manof(object):
         self._logger = logger
         self._args = self._ungreedify_targets(args, known_arg_options)
 
-        if hasattr(self._args, 'print_command_only') and self._args.print_command_only:
+        if hasattr(self._args, "print_command_only") and self._args.print_command_only:
             self._args.dry_run = True
             self._logger.setLevel(0)
         elif (
-            hasattr(self._args, 'print_run_md5_only') and self._args.print_run_md5_only
+            hasattr(self._args, "print_run_md5_only") and self._args.print_run_md5_only
         ):
             self._args.dry_run = True
             self._logger.setLevel(0)
 
         # Set number of tries according to args (only effects pull and push)
         self._number_of_tries = (
-            self._args.num_retries + 1 if self._args.command in ['pull', 'push'] else 1
+            self._args.num_retries + 1 if self._args.command in ["pull", "push"] else 1
         )
 
         manof_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -61,17 +61,17 @@ class Manof(object):
 
             value = args[idx + 1]
             if (
-                arg.startswith('-')
-                and not value.startswith('-')
-                and '=' not in arg
+                arg.startswith("-")
+                and not value.startswith("-")
+                and "=" not in arg
                 and arg not in known_arg_options
             ):
                 if value in parsed_args.targets:
                     parsed_args.targets.remove(value)
                 if not len(parsed_args.targets):
                     raise IOError(
-                        'No targets arguments found. You must have entered a bad'
-                        ' argument combination'
+                        "No targets arguments found. You must have entered a bad"
+                        " argument combination"
                     )
 
         return parsed_args
@@ -82,7 +82,7 @@ class Manof(object):
         # run the command
         def _log_tracebacks(failure):
             self._logger.error(
-                'Unhandled exception running command',
+                "Unhandled exception running command",
                 command=self._args.command,
                 error=failure.getErrorMessage(),
                 traceback=failure.getTraceback(),
@@ -97,25 +97,25 @@ class Manof(object):
         yield d
 
     def provision(self):
-        return self._run_command_on_target_tree('provision')
+        return self._run_command_on_target_tree("provision")
 
     def run(self):
-        return self._run_command_on_target_tree('run')
+        return self._run_command_on_target_tree("run")
 
     def stop(self):
-        return self._run_command_on_target_tree('stop')
+        return self._run_command_on_target_tree("stop")
 
     def lift(self):
-        return self._run_command_on_target_tree('lift')
+        return self._run_command_on_target_tree("lift")
 
     def rm(self):
-        return self._run_command_on_target_tree('rm')
+        return self._run_command_on_target_tree("rm")
 
     def push(self):
-        return self._run_command_on_target_tree('push')
+        return self._run_command_on_target_tree("push")
 
     def pull(self):
-        return self._run_command_on_target_tree('pull')
+        return self._run_command_on_target_tree("pull")
 
     def update(self):
         return self._update_manager.update()
@@ -171,7 +171,7 @@ class Manof(object):
         targets = self._load_targets_from_manofest(self._args.manofest_path)
 
         # create a new argparser
-        secondary_ap = argparse.ArgumentParser(conflict_handler='resolve')
+        secondary_ap = argparse.ArgumentParser(conflict_handler="resolve")
 
         # pass I
         # iterate over targets and register class level arguments
@@ -202,11 +202,11 @@ class Manof(object):
     def _load_targets_from_manofest(self, manofest_path):
         target_instances = []
         excluded_targets = (
-            self._args.exclude.split(',') if 'exclude' in self._args else []
+            self._args.exclude.split(",") if "exclude" in self._args else []
         )
 
         # start by loading the manofest module
-        self._logger.debug('Loading manofest', manofest_path=manofest_path)
+        self._logger.debug("Loading manofest", manofest_path=manofest_path)
         manofest_module = self._load_manofest_module(manofest_path)
 
         # normalize to cls names
@@ -221,7 +221,7 @@ class Manof(object):
         for target in targets:
             if target in excluded_targets:
                 self._logger.debug(
-                    'Exclusion requested. Skipping target',
+                    "Exclusion requested. Skipping target",
                     target=target,
                     excluded_targets=excluded_targets,
                 )
@@ -238,7 +238,7 @@ class Manof(object):
                 for member in members:
                     if member in excluded_targets:
                         self._logger.debug(
-                            'Exclusion requested. Skipping target',
+                            "Exclusion requested. Skipping target",
                             member=member,
                             excluded_targets=excluded_targets,
                         )
@@ -257,7 +257,7 @@ class Manof(object):
 
     def _load_manofest_module(self, manofest_path):
         manofest_module = importlib.machinery.SourceFileLoader(
-            'manofest', manofest_path
+            "manofest", manofest_path
         ).load_module()
         return manofest_module
 
@@ -291,11 +291,11 @@ class Manof(object):
 
             if skip_missing:
                 self._logger.info(
-                    'Failed to find target in manofest module. Skipping', target=target
+                    "Failed to find target in manofest module. Skipping", target=target
                 )
             else:
                 raise RuntimeError(
-                    'Failed to find target in manofest module: {0}'.format(target)
+                    "Failed to find target in manofest module: {0}".format(target)
                 )
 
         return cls_names
@@ -397,7 +397,7 @@ class Manof(object):
         for action in parser._actions:
             if isinstance(action, argparse._StoreTrueAction):
                 error_msg = (
-                    'manofest.py doens\'t support argument registration of'
-                    ' type=\'store_true\' \noffending action={0}'.format(action)
+                    "manofest.py doens't support argument registration of"
+                    " type='store_true' \noffending action={0}".format(action)
                 )
                 raise SyntaxError(error_msg)

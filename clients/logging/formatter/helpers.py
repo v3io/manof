@@ -13,18 +13,18 @@ class Severity(object):
     Error = logging.ERROR
 
     string_enum_dict = {
-        'verbose': Verbose,
-        'debug': Debug,
-        'info': Info,
-        'warn': Warning,
-        'warning': Warning,
+        "verbose": Verbose,
+        "debug": Debug,
+        "info": Info,
+        "warn": Warning,
+        "warning": Warning,
         # Allow abbreviations
         # Also provides backwards compatibility with log-console/file-severity syntax
-        'V': Verbose,
-        'D': Debug,
-        'I': Info,
-        'W': Warning,
-        'E': Error,
+        "V": Verbose,
+        "D": Debug,
+        "I": Info,
+        "W": Warning,
+        "E": Error,
     }
 
     @staticmethod
@@ -51,15 +51,15 @@ class JsonFormatter(logging.Formatter):
 
             # this is the widest complementary encoding found
             return simplejson.dumps(
-                params, cls=ObjectEncoder, encoding='raw_unicode_escape'
+                params, cls=ObjectEncoder, encoding="raw_unicode_escape"
             )
 
     def format(self, record):
         params = {
-            'datetime': self.formatTime(record, self.datefmt),
-            'name': record.name,
-            'level': record.levelname.lower(),
-            'message': record.getMessage(),
+            "datetime": self.formatTime(record, self.datefmt),
+            "name": record.name,
+            "level": record.levelname.lower(),
+            "message": record.getMessage(),
         }
 
         params.update(record.vars)

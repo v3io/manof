@@ -34,18 +34,18 @@ class CommandFailedError(Exception):
         self._err = err
 
         if code is not None:
-            message = '\'{0}\' exited with code {1}'.format(command, code)
+            message = "'{0}' exited with code {1}".format(command, code)
         else:
-            message = '\'{0}\' received signal {1}'.format(command, signal)
+            message = "'{0}' received signal {1}".format(command, signal)
 
         if cwd:
-            message += '\n (cwd: {0})'.format(cwd)
+            message += "\n (cwd: {0})".format(cwd)
 
         if err:
-            message += '\n (stderr: {0})'.format(err)
+            message += "\n (stderr: {0})".format(err)
 
         if out:
-            message += '\n (stdout: {0})'.format(out)
+            message += "\n (stdout: {0})".format(out)
 
         super(CommandFailedError, self).__init__(message)
 
@@ -63,35 +63,35 @@ class CommandFailedError(Exception):
 
 
 def git_pull(logger, path, quiet=False):
-    logger.debug('Pulling', **locals())
-    return shell_run(logger, 'git pull', cwd=path, quiet=quiet)
+    logger.debug("Pulling", **locals())
+    return shell_run(logger, "git pull", cwd=path, quiet=quiet)
 
 
 def shell_run(logger, command, cwd=None, quiet=False, env=None):
-    logger.debug('Running command', **locals())
+    logger.debug("Running command", **locals())
 
     # combine commands if list
     if isinstance(command, list):
-        command = ' && '.join(command)
+        command = " && ".join(command)
 
     return execute(command, cwd, quiet, env=env, logger=logger)
 
 
 def ensure_pip_requirements_exist(logger, venv_path, requirement_file_path):
-    logger.debug('Ensuring pip requirements exist', **locals())
+    logger.debug("Ensuring pip requirements exist", **locals())
 
     return venv_run(
-        logger, venv_path, 'pip install -r {0}'.format(requirement_file_path)
+        logger, venv_path, "pip install -r {0}".format(requirement_file_path)
     )
 
 
 def venv_run(logger, venv_path, command, cwd=None, quiet=False):
-    logger.debug('Running command in virtualenv', **locals())
+    logger.debug("Running command in virtualenv", **locals())
 
     commands = [
-        'source {0}'.format(os.path.join(venv_path, 'bin', 'activate')),
+        "source {0}".format(os.path.join(venv_path, "bin", "activate")),
         command,
-        'deactivate',
+        "deactivate",
     ]
 
     return shell_run(logger, commands, cwd, quiet)
@@ -170,7 +170,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
         _signal = failure.value[2]
         if logger:
             logger.warn(
-                'Command killed by signal',
+                "Command killed by signal",
                 command=command,
                 cwd=cwd,
                 out=_out,
@@ -180,7 +180,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
 
         if not quiet:
             if logger:
-                logger.warn('Command failed')
+                logger.warn("Command failed")
             raise CommandFailedError(
                 command=command, cwd=cwd, out=_out, err=_err, signal=_signal
             )
@@ -188,7 +188,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
             return _out, _err, _signal
 
     d = getProcessOutputAndValue(
-        '/bin/bash', args=['-c', command], path=cwd, env=env or os.environ
+        "/bin/bash", args=["-c", command], path=cwd, env=env or os.environ
     )
 
     # errback chain is fired if a signal is raised in the process
@@ -200,7 +200,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
     if code:
         if quiet and logger:
             logger.debug(
-                'Command failed quietly',
+                "Command failed quietly",
                 command=command,
                 cwd=cwd,
                 code_or_signal=code,
@@ -210,7 +210,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
         else:
             if logger:
                 logger.warn(
-                    'Command failed',
+                    "Command failed",
                     command=command,
                     cwd=cwd,
                     code_or_signal=code,
@@ -222,7 +222,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
             )
     else:
         if logger:
-            logger.info('Command succeeded', command=command, cwd=cwd, out=out, err=err)
+            logger.info("Command succeeded", command=command, cwd=cwd, out=out, err=err)
 
     defer.returnValue((out, err, code))
 
@@ -230,7 +230,7 @@ def execute(command, cwd, quiet, env=None, logger=None):
 @defer.inlineCallbacks
 def get_running_container_label(target_name, label, logger=None):
     sha, _, _ = yield execute(
-        'docker inspect --format \'{{{{ index .Config.Labels "{0}"}}}}\' {1}'.format(
+        "docker inspect --format '{{{{ index .Config.Labels \"{0}\"}}}}' {1}".format(
             label, target_name
         ),
         logger=logger,
@@ -241,7 +241,7 @@ def get_running_container_label(target_name, label, logger=None):
 
 
 def store_boolean(value):
-    return True if value == 'true' else False
+    return True if value == "true" else False
 
 
 @defer.inlineCallbacks
@@ -259,7 +259,7 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
 
     def _on_operation_callback_error(failure):
         logger.debug(
-            'Exception during operation execution',
+            "Exception during operation execution",
             function=function.__name__,
             tb=failure.getBriefTraceback(),
         )
@@ -278,7 +278,7 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
         except Exception as exc:
             last_exc = exc
             logger.warn(
-                'Operation failed',
+                "Operation failed",
                 function=function.__name__,
                 exc=repr(exc),
                 current_try_number=tries,
@@ -289,8 +289,8 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
         else:
             defer.returnValue(result)
 
-    last_exc.message = 'Failed to execute command with given retries:\n {0}'.format(
-        getattr(last_exc, 'message', str(last_exc))
+    last_exc.message = "Failed to execute command with given retries:\n {0}".format(
+        getattr(last_exc, "message", str(last_exc))
     )
     raise last_exc
 
@@ -298,9 +298,9 @@ def retry_until_successful(num_of_tries, logger, function, *args, **kwargs):
 def pprint_json(obj: typing.Union[typing.List, typing.Dict]):
     formatted_json = simplejson.dumps(obj, indent=2)
     if sys.stdout.isatty():
-        json_lexer = pygments.lexers.get_lexer_by_name('Json')
+        json_lexer = pygments.lexers.get_lexer_by_name("Json")
         formatter = pygments.formatters.get_formatter_by_name(
-            'terminal16m', style='paraiso-dark'
+            "terminal16m", style="paraiso-dark"
         )
         colorful_json = pygments.highlight(formatted_json, json_lexer, formatter)
         print(colorful_json)
