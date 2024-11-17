@@ -36,6 +36,7 @@ def _create_sym_link():
 
 
 def _install_venv():
+    run('rm -rf venv')
     run('python3 -m venv venv --without-pip')
     python_version_specific = ''
     if sys.version_info.minor== 7:
