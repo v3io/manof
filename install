@@ -35,6 +35,14 @@ def _create_sym_link():
         run('sudo {0}'.format(ln_cmd))
 
 
+def _install_venv():
+    run('python3 -m venv venv --without-pip')
+    python_version_specific = ''
+    if sys.version_info.minor== 7:
+        python_version_specific = 'pip/3.7/'
+    run('source venv/bin/activate && curl https://bootstrap.pypa.io/{0}get-pip.py | python'.format(python_version_specific))
+
+
 def main():
     args = register_arguments()
     if args.offline_install_path is None:
@@ -53,8 +61,8 @@ def main():
         # (from a local dir if it exists)
         # "python -m pip install" instead of "pip install" handles a pip
         # issue where it fails in a long-named dir
-        run('python3 -m venv venv && '
-            'source venv/bin/activate && '
+        _install_venv()
+        run('source venv/bin/activate && '
             'python -m pip install {0} incremental && '.format(local_pip_packages) +
             'python -m pip install {0} -r {1}'.format(local_pip_packages, requirements_file))
 
