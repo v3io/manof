@@ -18,39 +18,39 @@ class TestImage(manof.Image):
 
     @property
     def local_repository(self):
-        return ''
+        return ""
 
     @property
     def image_name(self):
-        return 'busybox:1'
+        return "busybox:1"
 
     @property
     def command(self):
-        return '/bin/sh -c "echo \'{0}\' && sleep infinity"'.format(self.name)
+        return "/bin/sh -c \"echo '{0}' && sleep infinity\"".format(self.name)
 
 
 class TestImage2(TestImage):
     @property
     def restart(self):
-        return 'on-failure:5'
+        return "on-failure:5"
 
     @property
     def memory(self):
-        return '6Mib'
+        return "6Mib"
 
     @property
     def cpus(self):
-        return '1'
+        return "1"
 
     @property
     def cap_add(self):
-        return ['SYS_ADMIN']
+        return ["SYS_ADMIN"]
 
 
 class SomeGroup(manof.Group):
     @property
     def members(self):
         return [
-            'TestImage',
-            'TestImage2',
+            "TestImage",
+            "TestImage2",
         ]

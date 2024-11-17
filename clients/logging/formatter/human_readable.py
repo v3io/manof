@@ -17,11 +17,11 @@ class HumanReadableFormatter(logging.Formatter):
 
     # Maps severity to its letter representation
     _level_to_short_name = {
-        helpers.Severity.Verbose: 'V',
-        helpers.Severity.Debug: 'D',
-        helpers.Severity.Info: 'I',
-        helpers.Severity.Warning: 'W',
-        helpers.Severity.Error: 'E',
+        helpers.Severity.Verbose: "V",
+        helpers.Severity.Debug: "D",
+        helpers.Severity.Info: "I",
+        helpers.Severity.Warning: "W",
+        helpers.Severity.Error: "E",
     }
 
     # Maps severity to its color representation
@@ -42,44 +42,44 @@ class HumanReadableFormatter(logging.Formatter):
 
         # coloured using pygments
         if self._enable_colors:
-            more = self._prettify_output(record.vars) if len(record.vars) else ''
+            more = self._prettify_output(record.vars) if len(record.vars) else ""
         else:
-            more = simplejson.dumps(record.vars) if len(record.vars) else ''
+            more = simplejson.dumps(record.vars) if len(record.vars) else ""
 
         output = {
-            'reset_color': colorama.Fore.RESET,
-            'when': datetime.datetime.fromtimestamp(record.created).strftime(
-                '%d.%m.%y %H:%M:%S.%f'
+            "reset_color": colorama.Fore.RESET,
+            "when": datetime.datetime.fromtimestamp(record.created).strftime(
+                "%d.%m.%y %H:%M:%S.%f"
             ),
-            'when_color': colorama.Fore.WHITE,
-            'who': record.name[-30:],
-            'who_color': colorama.Fore.WHITE,
-            'severity': HumanReadableFormatter._level_to_short_name[record.levelno],
-            'severity_color': HumanReadableFormatter._level_to_color.get(
+            "when_color": colorama.Fore.WHITE,
+            "who": record.name[-30:],
+            "who_color": colorama.Fore.WHITE,
+            "severity": HumanReadableFormatter._level_to_short_name[record.levelno],
+            "severity_color": HumanReadableFormatter._level_to_color.get(
                 record.levelno, colorama.Fore.RESET
             ),
-            'what': record.getMessage(),
-            'what_color': _get_what_color(),
-            'more': more,
+            "what": record.getMessage(),
+            "what_color": _get_what_color(),
+            "more": more,
         }
 
         # Slice ms to be at maximum of 3 digits
         try:
-            time_parts = output['when'].split('.')
+            time_parts = output["when"].split(".")
             time_parts[-1] = time_parts[-1][:-3]
-            output['when'] = '.'.join(time_parts)
+            output["when"] = ".".join(time_parts)
         except Exception:
             pass
 
         # Disable coloring if requested
         if not self._enable_colors:
-            for ansi_color in [f for f in output.keys() if 'color' in f]:
-                output[ansi_color] = ''
+            for ansi_color in [f for f in output.keys() if "color" in f]:
+                output[ansi_color] = ""
 
         return (
-            '{when_color}{when}{reset_color} {who_color}{who:>10}:{reset_color} '
-            '{severity_color}({severity}){reset_color} {what_color}{what}{reset_color} '
-            '{more}'.format(**output)
+            "{when_color}{when}{reset_color} {who_color}{who:>10}:{reset_color} "
+            "{severity_color}({severity}){reset_color} {what_color}{what}{reset_color} "
+            "{more}".format(**output)
         )
 
     def _prettify_output(self, vars_dict):
@@ -96,7 +96,7 @@ class HumanReadableFormatter(logging.Formatter):
 
         # some params for the long texts
         long_values = []
-        content_indent = '   '
+        content_indent = "   "
         wrap_width = 80
 
         for var_name, var_value in vars_dict.items():
@@ -133,21 +133,21 @@ class HumanReadableFormatter(logging.Formatter):
 
         # The long text is not a full json string, but a raw string (not escaped), as to keep it human readable,
         # but it is surrounded by double-quotes so the coloring lexer will eat it up
-        values_str = ''
+        values_str = ""
         if short_values:
             values_str = helpers.JsonFormatter.format_to_json_str(
                 {k: v for k, v in short_values}
             )
         if long_values:
-            values_str += '\n'
+            values_str += "\n"
 
             for lv_name, lv_value in long_values:
-                values_str += '{{{0}:\n{1}}}\n'.format(
+                values_str += "{{{0}:\n{1}}}\n".format(
                     helpers.JsonFormatter.format_to_json_str(lv_name),
-                    lv_value.rstrip('\n'),
+                    lv_value.rstrip("\n"),
                 )
-        json_lexer = pygments.lexers.get_lexer_by_name('Json')
+        json_lexer = pygments.lexers.get_lexer_by_name("Json")
         formatter = pygments.formatters.get_formatter_by_name(
-            'terminal16m', style='paraiso-dark'
+            "terminal16m", style="paraiso-dark"
         )
         return pygments.highlight(values_str, json_lexer, formatter)

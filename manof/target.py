@@ -16,7 +16,7 @@ class Target(object):
         self._manofest_dir = os.path.dirname(self._manofest_path)
 
     def add_dependent_target(self, target):
-        self._logger.debug('Adding dependent target', target=target.name)
+        self._logger.debug("Adding dependent target", target=target.name)
         self._dependent_targets.append(target)
 
     def register_args(self, parser):
@@ -39,14 +39,14 @@ class Target(object):
                 envvar_name = list(env.keys())[0]
             else:
                 raise RuntimeError(
-                    'env var not defined as string or dict: {0}'.format(env)
+                    "env var not defined as string or dict: {0}".format(env)
                 )
 
             # register new arg that will override this env var
             argument = self._to_argument(envvar_name)
-            self._logger.debug('Registering env arg', argument=argument)
+            self._logger.debug("Registering env arg", argument=argument)
             parser.add_argument(
-                argument, required=False, help='Environment variable population option'
+                argument, required=False, help="Environment variable population option"
             )
 
     def update_args(self, args):
@@ -71,7 +71,7 @@ class Target(object):
     def to_dict(self):
         d = {}
         for attr in dir(self):
-            if attr.startswith('_'):
+            if attr.startswith("_"):
                 continue
 
             value = getattr(self, attr)
@@ -82,7 +82,7 @@ class Target(object):
             ):
                 continue
 
-            if attr == 'dependent_targets':
+            if attr == "dependent_targets":
                 value = [t.name for t in value]
 
             d[attr] = value
@@ -90,8 +90,8 @@ class Target(object):
 
     def pprint_json(self, some_object):
         self._logger.debug(
-            'Calling Target.pprint_json is deprecated, use `manof.utils.pprint_json`'
-            ' instead'
+            "Calling Target.pprint_json is deprecated, use `manof.utils.pprint_json`"
+            " instead"
         )
         return manof.utils.pprint_json(some_object)
 
@@ -101,7 +101,7 @@ class Target(object):
 
     @property
     def env_prefix(self):
-        return ''
+        return ""
 
     @property
     def allow_env_args(self):
@@ -110,7 +110,7 @@ class Target(object):
     @defer.inlineCallbacks
     def _run_command(self, command, cwd=None, raise_on_error=True, env=None):
         self._logger.debug(
-            'Running command',
+            "Running command",
             command=command,
             cwd=cwd,
             raise_on_error=raise_on_error,
@@ -119,7 +119,7 @@ class Target(object):
 
         # combine commands if list
         if isinstance(command, list):
-            command = ' && '.join(command)
+            command = " && ".join(command)
 
         # if dry run, do nothing
         if not self._args.dry_run:
@@ -127,7 +127,7 @@ class Target(object):
                 command, cwd=cwd, quiet=not raise_on_error, env=env, logger=self._logger
             )
         else:
-            result = yield '', '', 0
+            result = yield "", "", 0
 
         defer.returnValue(result)
 
@@ -138,12 +138,12 @@ class Target(object):
         if envvar.startswith(self.env_prefix):
             argument = argument[len(self.env_prefix) :]
 
-        argument = '{0}_{1}'.format(self.name, argument).lower()
+        argument = "{0}_{1}".format(self.name, argument).lower()
 
         if hyphenate:
-            argument = argument.replace('_', '-')
+            argument = argument.replace("_", "-")
 
         if arg_prefix:
-            argument = '--{0}'.format(argument)
+            argument = "--{0}".format(argument)
 
         return argument

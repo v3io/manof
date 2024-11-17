@@ -21,7 +21,7 @@ jobs:
           python-version: 3.7
 
       - name: Install dependencies
-        run: make install-ci
+        run: make install
 
       - name: Run lint
         run: make lint
@@ -37,7 +37,7 @@ jobs:
           python-version: 3.7
 
       - name: Install dependencies
-        run: make install-ci
+        run: make install
 
       - name: Run unit test
         run: make test-unit
@@ -53,7 +53,7 @@ jobs:
           python-version: 3.7
 
       - name: Install dependencies
-        run: make install-ci
+        run: make install
 
       - name: Run integration test
         run: make test-integ
