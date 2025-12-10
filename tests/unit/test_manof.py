@@ -95,6 +95,7 @@ class ManofUnitTestCase(unittest.TestCase):
         image._args = manof_args
         image._manofest_path = os.path.abspath(image._args.manofest_path)
         image._manofest_dir = os.path.dirname(image._manofest_path)
+        image.build_args = {}
 
         self._logger.debug(
             "Setting mocked image properties", properties=image_properties

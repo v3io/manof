@@ -1,0 +1,4 @@
+FROM busybox:1
+ARG MY_ARG
+LABEL my_arg_label=$MY_ARG
+CMD ["/bin/sh", "-c", "echo $MY_ARG"]

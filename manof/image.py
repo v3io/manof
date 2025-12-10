@@ -45,6 +45,9 @@ class Image(manof.Target):
                 " ".join(provision_args), self.image_name, self.dockerfile, self.context
             )
 
+            for key, value in self.build_args.items():
+                command += " --build-arg {0}={1} ".format(key, value)
+
             # if image provides a programmatic docker ignore, we need to create a temporary
             # file at the context and remove it when we're done
             if self.dockerignore is not None:
@@ -653,6 +656,10 @@ class Image(manof.Target):
     @property
     def dockerignore(self):
         return None
+
+    @property
+    def build_args(self):
+        return {}
 
     @property
     def user_and_group(self):
