@@ -53,3 +53,35 @@ class BasicCommandsTestCase(tests.integration.ManofIntegrationTestCase):
             quiet=False,
             logger=self._logger,
         )
+
+    @defer.inlineCallbacks
+    def test_build_image_with_buildargs(self):
+        self._logger.info("Testing build image with buildargs")
+
+        # load the integration test manofest
+        manofest = self._load_manofest_targets("BuildArgsTestImage")
+        docker_image = manofest.dependent_targets[0].image_name
+
+        # Remove image if exists
+        self._logger.debug("Removing docker image", docker_image=docker_image)
+        yield manof.utils.execute(
+            "docker rmi -f {0}".format(docker_image),
+            cwd=None,
+            quiet=True,
+            logger=self._logger,
+        )
+
+        # Build the image using manof (should use buildargs)
+        yield self._manof.provision()
+
+        # Inspect the image to verify build arg effect (label)
+        output, _, _ = yield manof.utils.execute(
+            "docker inspect --format='{{{{ index .Config.Labels \"my_arg_label\" }}}}' {0}".format(
+                docker_image
+            ),
+            cwd=None,
+            quiet=False,
+            logger=self._logger,
+        )
+
+        self.assertIn("test_value", output)
