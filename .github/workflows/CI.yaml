@@ -27,6 +27,7 @@ jobs:
         run: make lint
 
   unit_test:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,6 +44,7 @@ jobs:
         run: make test-unit
 
   integration_test:
+    name: Integration Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
